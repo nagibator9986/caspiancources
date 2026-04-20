@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Админ-панель · Caspian College Lerna{% endblock %}
+{% block content %}
+
+<h1 class="mb-3 text-2xl font-semibold text-slate-900">Админ-панель</h1>
+<p class="mb-6 text-sm text-slate-500">
+  Здесь вы управляете курсами, модулями, уроками, блоками контента, тестами и темами оформления.
+</p>
+
+<div class="grid gap-4 md:grid-cols-3">
+  <a href="{{ url_for('admin.courses_list') }}"
+     class="group rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100 hover:-translate-y-0.5 hover:shadow-md transition">
+    <p class="mb-1 text-xs font-medium text-slate-500">Курсы</p>
+    <p class="mb-3 text-2xl font-semibold text-slate-900">{{ courses_count }}</p>
+    <p class="text-xs text-slate-500">
+      Создавайте и редактируйте курсы, их описания, структуру и финальные тесты.
+    </p>
+  </a>
+
+  <a href="{{ url_for('admin.themes_list') }}"
+     class="group rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100 hover:-translate-y-0.5 hover:shadow-md transition">
+    <p class="mb-1 text-xs font-medium text-slate-500">Темы оформления</p>
+    <p class="mb-3 text-2xl font-semibold text-slate-900">{{ themes_count }}</p>
+    <p class="text-xs text-slate-500">
+      Управляйте визуальным стилем курсов: цвета, фон, шрифты.
+    </p>
+  </a>
+
+  <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+    <p class="mb-1 text-xs font-medium text-slate-500">Тесты</p>
+    <p class="mb-3 text-2xl font-semibold text-slate-900">{{ tests_count }}</p>
+    <p class="text-xs text-slate-500">
+      Тесты по модулям и финальные экзамены используются при выдаче сертификатов.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

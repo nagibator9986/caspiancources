@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Caspian College Lerna — Платформа курсов{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            accent: '#22c55e'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Можно подключить шрифт Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
+  <div class="flex min-h-screen flex-col">
+    {% include 'navbar.html' %}
+
+    <!-- Flash-сообщения -->
+    <div class="container mx-auto px-4 mt-4 space-y-2 max-w-5xl">
+      {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            {% set color = 'blue' %}
+            {% if category in ['success'] %}{% set color = 'green' %}{% endif %}
+            {% if category in ['danger', 'error'] %}{% set color = 'red' %}{% endif %}
+            {% if category in ['warning'] %}{% set color = 'yellow' %}{% endif %}
+            <div class="flex items-start gap-3 rounded-xl border border-{{ color }}-100 bg-{{ color }}-50 px-4 py-3 text-sm text-{{ color }}-800 shadow-sm">
+              <div class="mt-0.5">
+                {% if color == 'green' %}
+                  ✅
+                {% elif color == 'red' %}
+                  ⚠️
+                {% elif color == 'yellow' %}
+                  ⚡
+                {% else %}
+                  💬
+                {% endif %}
+              </div>
+              <div class="flex-1">
+                {{ msg }}
+              </div>
+              <button
+                type="button"
+                class="text-{{ color }}-400 hover:text-{{ color }}-600"
+                onclick="this.parentElement.remove()">
+                ✕
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <main class="flex-1">
+      <div class="container mx-auto px-4 py-6 max-w-6xl">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- футер -->
+    <footer class="border-t border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 text-xs text-slate-500">
+        <p>© {{ 2025 }} Caspian College Lerna — Платформа конструктор курсов.</p>
+        <p class="flex items-center gap-2">
+          <span class="inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+          <span>Онлайн · версия MVP</span>
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

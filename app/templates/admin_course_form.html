@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Курс · форма{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-xl font-semibold text-slate-900">
+  {% if course %}Редактирование курса{% else %}Новый курс{% endif %}
+</h1>
+
+<form method="post" class="space-y-4 max-w-2xl rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+  {{ form.hidden_tag() }}
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div>
+      {{ form.title.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.title(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm") }}
+    </div>
+    <div>
+      {{ form.slug.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.slug(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm") }}
+    </div>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-3">
+    <div>
+      {{ form.category.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.category(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.level.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.level(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.theme_id.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.theme_id(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+  </div>
+
+  <div>
+    {{ form.description.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.description(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm h-24") }}
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div>
+      {{ form.image_url.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.image_url(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.hero_image_url.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.hero_image_url(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div>
+      {{ form.requirements.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.requirements(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs h-24") }}
+    </div>
+    <div>
+      {{ form.outcomes.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.outcomes(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs h-24") }}
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 text-xs">
+    <label class="inline-flex items-center gap-2">
+      {{ form.is_sequential() }}
+      <span>Проходить модули по порядку</span>
+    </label>
+    <label class="inline-flex items-center gap-2">
+      {{ form.is_published() }}
+      <span>Опубликован</span>
+    </label>
+  </div>
+
+  {{ form.submit(class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700") }}
+</form>
+{% endblock %}

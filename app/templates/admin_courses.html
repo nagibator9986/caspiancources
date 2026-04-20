@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Курсы · Админка{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-xl font-semibold text-slate-900">Курсы</h1>
+
+<div class="mb-4 flex items-center justify-between">
+  <p class="text-xs text-slate-500">
+    Управление курсами: структура, описание, темы оформления и тесты.
+  </p>
+  <a href="{{ url_for('admin.course_create') }}"
+     class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+    + Создать курс
+  </a>
+</div>
+
+{% if courses %}
+  <div class="space-y-3 text-xs">
+    {% for c in courses %}
+      <div class="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">{{ c.title }}</p>
+          <p class="text-[11px] text-slate-500">
+            Slug: {{ c.slug }} · Категория: {{ c.category or 'нет' }} · Уровень: {{ c.level or 'любой' }}
+          </p>
+          <p class="text-[11px] text-slate-400 mt-1">
+            Структура:
+            <a class="underline" href="{{ url_for('admin.modules_list', course_id=c.id) }}">модули</a> ·
+            <a class="underline" href="{{ url_for('admin.course_tests', course_id=c.id) }}">финальные тесты</a>
+          </p>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+          <span class="rounded-full bg-slate-50 px-3 py-1 text-[11px] text-slate-600">
+            {% if c.is_published %}Опубликован{% else %}Черновик{% endif %}
+          </span>
+
+          <div class="flex items-center gap-3">
+            <!-- Редактировать -->
+            <a href="{{ url_for('admin.course_edit', course_id=c.id) }}"
+               class="text-[11px] text-primary-600 hover:text-primary-700">
+              Редактировать →
+            </a>
+
+            <!-- Удалить -->
+            <form id="delete-course-form-{{ c.id }}"
+                  method="post"
+                  action="{{ url_for('admin.delete_course', course_id=c.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button
+                type="button"
+                class="text-[11px] text-red-500 hover:text-red-600 underline underline-offset-2"
+                data-course-id="{{ c.id }}"
+                data-course-title="{{ c.title|e }}"
+                onclick="confirmDeleteCourse(this)">
+                Удалить
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-xs text-slate-500">Курсы ещё не созданы.</p>
+{% endif %}
+
+<script>
+  function confirmDeleteCourse(buttonEl) {
+    const courseId = buttonEl.getAttribute('data-course-id');
+    const courseTitle = buttonEl.getAttribute('data-course-title');
+
+    const first = confirm(`Вы точно хотите удалить курс «${courseTitle}»?`);
+    if (!first) return;
+
+    const second = confirm(`Вы ТОЧНО-ТОЧНО хотите удалить данный курс?\nЭто действие нельзя будет отменить.`);
+    if (!second) return;
+
+    const form = document.getElementById(`delete-course-form-${courseId}`);
+    if (form) {
+      form.submit();
+    }
+  }
+</script>
+
+{% endblock %}

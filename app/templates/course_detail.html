@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} · Caspian College Lerna{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Хлебные крошки -->
+  <nav class="text-[11px] text-slate-400 mb-1">
+    <a href="{{ url_for('main.index') }}" class="hover:text-slate-600">Главная</a>
+    <span class="mx-1">·</span>
+    <a href="{{ url_for('courses.courses') if false else '#' }}" class="hover:text-slate-600">Курсы</a>
+    <span class="mx-1">·</span>
+    <span class="text-slate-600">{{ course.title }}</span>
+  </nav>
+
+  <!-- Верхний блок: обложка + основная информация -->
+  <section
+    class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-5 text-slate-50 md:p-7">
+    <div class="grid gap-6 md:grid-cols-[2.2fr,1.2fr] items-center">
+
+      <!-- Левая часть: заголовок, описание, мета -->
+      <div class="space-y-4">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-primary-200">
+          Онлайн-курс
+        </p>
+
+        <h1 class="text-2xl md:text-3xl font-semibold leading-snug">
+          {{ course.title }}
+        </h1>
+
+        {% if course.description %}
+          <p class="text-xs md:text-sm text-slate-200 max-w-2xl">
+            {{ course.description }}
+          </p>
+        {% endif %}
+
+        <div class="flex flex-wrap gap-2 text-[11px]">
+          <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/80 px-3 py-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+            Категория: <span class="font-medium text-slate-50">{{ course.category or 'не указана' }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/80 px-3 py-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+            Уровень: <span class="font-medium text-slate-50">{{ course.level or 'любой' }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-slate-800/80 px-3 py-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-amber-300"></span>
+            Язык: <span class="font-medium text-slate-50">{{ course.language or 'ru' }}</span>
+          </span>
+        </div>
+
+        <div class="grid gap-3 text-[11px] text-slate-200 md:grid-cols-3">
+          <div class="rounded-2xl bg-slate-800/70 p-3">
+            <p class="text-[10px] uppercase tracking-wide text-slate-400 mb-1">Формат</p>
+            <p class="text-xs font-medium">
+              Модули, уроки, тесты и финальный сертификат
+            </p>
+          </div>
+          <div class="rounded-2xl bg-slate-800/70 p-3">
+            <p class="text-[10px] uppercase tracking-wide text-slate-400 mb-1">Продолжительность</p>
+            <p class="text-xs font-medium">
+              {% if course.estimated_duration_minutes %}
+                ~{{ (course.estimated_duration_minutes // 60) or 1 }} ч обучения
+              {% else %}
+                Гибкий график, изучаете в удобном темпе
+              {% endif %}
+            </p>
+          </div>
+          <div class="rounded-2xl bg-slate-800/70 p-3">
+            <p class="text-[10px] uppercase tracking-wide text-slate-400 mb-1">Модулей в курсе</p>
+            <p class="text-xs font-medium">
+              {{ course.modules|length if course.modules else 0 }} модулей
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Правая часть: обложка/иллюстрация курса -->
+      <div class="relative">
+        <div class="relative mx-auto max-w-xs rounded-3xl bg-slate-950/40 p-4 ring-1 ring-slate-700/70 shadow-lg">
+          <div class="mb-3 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-500/90 text-sm font-semibold text-white">
+              {{ course.title[:2]|upper }}
+            </div>
+            <div class="space-y-0.5">
+              <p class="text-[11px] font-medium text-slate-100">
+                Персональная траектория
+              </p>
+              <p class="text-[10px] text-slate-400">
+                Ваш прогресс и сертификаты — в одном месте
+              </p>
+            </div>
+          </div>
+
+          <div class="mb-3 rounded-2xl bg-gradient-to-br from-sky-500/40 via-indigo-500/30 to-emerald-400/30 p-3">
+            <p class="mb-1 text-[10px] uppercase tracking-wide text-slate-100">
+              Результат
+            </p>
+            <p class="text-[11px] text-slate-50">
+              Освоите практические инструменты ИИ и оформите их в виде реального мини-проекта.
+            </p>
+          </div>
+
+          <ul class="space-y-1.5 text-[11px] text-slate-300">
+            <li class="flex items-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+              Практика на реальных сценариях
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+              Интерактивные тесты и задания
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span>
+              Сертификат после успешного финального теста
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Основной контент: программа слева, карточка статуса/записи справа -->
+  <div class="grid gap-6 lg:grid-cols-[1.8fr,1.1fr]">
+
+    <!-- Левая колонка: программа и детали -->
+    <section class="space-y-6">
+
+      <!-- Что внутри курса -->
+      <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+        <div class="mb-3 flex items-center justify-between gap-2">
+          <div>
+            <p class="text-[11px] uppercase tracking-wide text-slate-400">Программа</p>
+            <h2 class="text-sm font-semibold text-slate-900">Что внутри курса</h2>
+          </div>
+          {% if course.modules %}
+            <span class="rounded-full bg-slate-50 px-3 py-1 text-[11px] text-slate-500">
+              {{ course.modules|length }} модулей ·
+              примерно
+              {{
+                course.modules|map(attribute='lessons')|sum(attribute='|length') 
+                if false else ''
+              }}
+            </span>
+          {% endif %}
+        </div>
+
+        {% if course.modules %}
+          <ol class="space-y-2 text-xs">
+            {% for m in course.modules %}
+              <li class="rounded-2xl border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <div class="flex items-start gap-2">
+                  <div
+                    class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-50 text-[11px] font-semibold text-primary-600">
+                    {{ loop.index }}
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-[13px] font-medium text-slate-900">
+                      {{ m.title }}
+                    </p>
+                    {% if m.description %}
+                      <p class="text-[11px] text-slate-500">
+                        {{ m.description }}
+                      </p>
+                    {% endif %}
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <p class="text-xs text-slate-500">
+            Структура курса пока не настроена. Как только модули будут добавлены, здесь отобразится подробная программа.
+          </p>
+        {% endif %}
+      </div>
+
+      <!-- Чему вы научитесь / Результаты -->
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+          <p class="mb-1 text-[11px] uppercase tracking-wide text-sky-500">Чему вы научитесь</p>
+          {% if course.outcomes %}
+            <ul class="space-y-1.5 text-[11px] text-slate-600">
+              {% for line in course.outcomes.split('\n') if line.strip() %}
+                <li class="flex gap-2">
+                  <span class="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                  <span>{{ line|replace('- ', '') }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-xs text-slate-600">
+              После курса вы укрепите цифровые навыки, научитесь пользоваться ИИ-ассистентами в учёбе и работе,
+              а также соберёте свой первый мини-проект.
+            </p>
+          {% endif %}
+        </div>
+
+        <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+          <p class="mb-1 text-[11px] uppercase tracking-wide text-amber-500">Кому подойдёт курс</p>
+          {% if course.requirements %}
+            <ul class="space-y-1.5 text-[11px] text-slate-600">
+              {% for line in course.requirements.split('\n') if line.strip() %}
+                <li class="flex gap-2">
+                  <span class="mt-1 h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                  <span>{{ line|replace('- ', '') }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-xs text-slate-600">
+              Курс подойдёт тем, кто делает первые шаги в цифровых технологиях, хочет использовать ИИ в учебе и
+              будущем трудоустройстве, а также тем, кто просто хочет «подружиться» с современными инструментами.
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Правая колонка: Статус / Записаться / Сертификат -->
+    <aside class="space-y-4">
+
+      <!-- Карточка статуса / записи -->
+      <div class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+        {% if user_course %}
+          <p class="mb-1 text-[11px] uppercase tracking-wide text-slate-400">Ваш статус</p>
+          <p class="mb-3 text-sm font-semibold text-slate-900">
+            {% if user_course.status == 'enrolled' %}Вы зачислены на курс{% endif %}
+            {% if user_course.status == 'in_progress' %}Вы проходите курс{% endif %}
+            {% if user_course.status == 'completed' %}Курс завершён{% endif %}
+          </p>
+
+          <div class="mb-4">
+            <div class="mb-1 flex justify-between text-[11px] text-slate-500">
+              <span>Прогресс по курсу</span>
+              <span>{{ user_course.progress_percent or 0 }}%</span>
+            </div>
+            <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div
+                class="h-full rounded-full bg-primary-500 transition-all"
+                style="width: {{ user_course.progress_percent or 0 }}%;"></div>
+            </div>
+          </div>
+
+          <a href="{{ url_for('courses.course_learn', slug=course.slug) }}"
+             class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+            Открыть программу курса
+          </a>
+        {% else %}
+          <p class="mb-3 text-sm font-medium text-slate-900">
+            Запишитесь на курс, чтобы открыть доступ к урокам и тестам
+          </p>
+          <p class="mb-4 text-[11px] text-slate-500">
+            После записи вы получите доступ ко всем модулям, практическим заданиям и финальному тесту.
+          </p>
+          <form method="post" action="{{ url_for('courses.enroll_course', slug=course.slug) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button
+              class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+              🚀 Записаться на курс
+            </button>
+          </form>
+        {% endif %}
+      </div>
+
+      <!-- Блок про сертификат -->
+      <div class="rounded-3xl bg-slate-900 p-4 text-xs text-slate-100">
+        <p class="mb-1 text-[11px] font-medium uppercase tracking-wide text-emerald-300">Сертификат</p>
+        <p class="mb-2 text-[13px]">
+          После прохождения всех модулей и успешного финального теста вы получите персональный сертификат
+          прохождения курса. Он будет доступен в вашем личном кабинете.
+        </p>
+        <p class="mb-1 text-[11px] text-slate-300">
+          Вы сможете прикрепить сертификат к резюме, портфолио или разместить ссылку в социальных сетях.
+        </p>
+        <p class="text-[11px] text-slate-400">
+          Каждый сертификат содержит уникальный код для проверки подлинности.
+        </p>
+      </div>
+
+      <!-- Дополнительный инфоблок -->
+      <div class="rounded-3xl bg-slate-50 p-4 text-[11px] text-slate-600">
+        <p class="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+          Как лучше проходить курс
+        </p>
+        <ul class="space-y-1.5">
+          <li class="flex gap-2">
+            <span class="mt-1 h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+            <span>Выделяйте 2–3 сессии в неделю по 45–60 минут.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="mt-1 h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+            <span>Ведите свои заметки — фиксируйте полезные промпты и примеры.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="mt-1 h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+            <span>Сразу пробуйте применять инструменты ИИ к реальным задачам из учёбы или работы.</span>
+          </li>
+        </ul>
+      </div>
+
+    </aside>
+  </div>
+</div>
+{% endblock %}

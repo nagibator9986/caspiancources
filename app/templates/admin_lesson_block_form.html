@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Новый блок урока{% endblock %}
+{% block content %}
+<h1 class="mb-2 text-xl font-semibold text-slate-900">Новый блок урока</h1>
+<p class="mb-4 text-xs text-slate-500">
+  Курс: {{ lesson.module.course.title }} · Модуль: {{ lesson.module.title }} · Урок: {{ lesson.title }}
+</p>
+
+<form method="post" enctype="multipart/form-data" class="space-y-4 max-w-xl bg-white p-5 rounded-3xl shadow-sm ring-1 ring-slate-100">
+  {{ form.hidden_tag() }}
+
+  <div>
+    {{ form.block_type.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.block_type(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+  </div>
+
+  <div>
+    {{ form.title.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.title(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+  </div>
+
+  <div>
+    {{ form.text_content.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.text_content(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs h-24 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+    <p class="mt-1 text-[11px] text-slate-400">
+      Для типов «Текст» и «Цитата» используется это поле. Для других можно оставить пустым.
+    </p>
+  </div>
+
+  <div>
+    {{ form.video_url.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.video_url(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+    <p class="mt-1 text-[11px] text-slate-400">
+      Для типа «Видео» можно указать ссылку (YouTube). Если хотите загрузить файл — используйте поле ниже.
+    </p>
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-slate-600 mb-1">Файл (видео/картинка/документ)</label>
+    <input type="file" name="upload_file"
+           class="block w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white hover:file:bg-slate-800">
+    <p class="mt-1 text-[11px] text-slate-400">
+      В зависимости от типа блока: видео-файл, изображение или документ (pdf, docx и т.п.).
+    </p>
+  </div>
+
+  <div>
+    {{ form.order_index.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.order_index(class="w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+  </div>
+
+  <div>
+    {{ form.submit(class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700") }}
+    <a href="{{ url_for('admin.lesson_blocks_list', lesson_id=lesson.id) }}" class="ml-2 text-xs text-slate-500 hover:text-slate-700">
+      Отмена
+    </a>
+  </div>
+</form>
+{% endblock %}

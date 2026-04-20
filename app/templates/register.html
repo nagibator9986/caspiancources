@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Регистрация · Caspian College Lerna{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center py-10">
+  <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+    <h2 class="mb-1 text-xl font-semibold text-slate-900">Создать аккаунт</h2>
+    <p class="mb-5 text-xs text-slate-500">
+      Один аккаунт — и вы можете и проходить курсы, и создавать свои (через роль администратора).
+    </p>
+
+    <form method="post" class="space-y-4 text-sm">
+      {{ form.hidden_tag() }}
+
+      <div>
+        {{ form.full_name.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+        {{ form.full_name(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+        {% for error in form.full_name.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div>
+        {{ form.email.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+        {{ form.email(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+        {% for error in form.email.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div>
+        {{ form.password.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+        {{ form.password(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+        {% for error in form.password.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div>
+        {{ form.password2.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+        {{ form.password2(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+        {% for error in form.password2.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="flex items-center justify-between text-xs text-slate-500">
+        <span>Уже есть аккаунт?
+          <a href="{{ url_for('auth.login') }}" class="font-medium text-primary-600 hover:text-primary-700">
+            Войти
+          </a>
+        </span>
+      </div>
+
+      {{ form.submit(class="w-full rounded-xl bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700") }}
+    </form>
+  </div>
+</div>
+{% endblock %}

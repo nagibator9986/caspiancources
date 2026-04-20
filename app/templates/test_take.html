@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Тест: {{ test.title }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+  <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Тест</p>
+  <h1 class="mb-2 text-xl font-semibold text-slate-900">{{ test.title }}</h1>
+  {% if test.description %}
+    <p class="mb-4 text-xs text-slate-600">{{ test.description }}</p>
+  {% endif %}
+  <p class="mb-4 text-[11px] text-slate-500">
+    Проходной балл: <span class="font-medium text-slate-800">{{ test.pass_score_percent }}%</span>
+    {% if test.max_attempts %}
+      · Максимум попыток: {{ test.max_attempts }}
+    {% else %}
+      · Попытки не ограничены
+    {% endif %}
+  </p>
+
+  <form method="post" class="space-y-4 text-sm">
+    {{ csrf_token() }}
+    {% for q in test.questions|sort(attribute='order_index') %}
+      <div class="rounded-2xl bg-slate-50 p-4">
+        <p class="mb-2 text-sm font-medium text-slate-900">
+          {{ loop.index }}. {{ q.text }}
+          <span class="text-[11px] text-slate-400">· {{ q.points }} балл(ов)</span>
+        </p>
+        <div class="space-y-2">
+          {% if q.type == "single" %}
+            {% for opt in q.answer_options %}
+              <label class="flex items-start gap-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 shadow-sm ring-1 ring-slate-100 hover:bg-slate-50">
+                <input class="mt-0.5 h-3.5 w-3.5 rounded-full border-slate-300 text-primary-600 focus:ring-primary-500"
+                       type="radio" name="q_{{ q.id }}" value="{{ opt.id }}">
+                <span>{{ opt.text }}</span>
+              </label>
+            {% endfor %}
+          {% elif q.type == "multiple" %}
+            {% for opt in q.answer_options %}
+              <label class="flex items-start gap-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 shadow-sm ring-1 ring-slate-100 hover:bg-slate-50">
+                <input class="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                       type="checkbox" name="q_{{ q.id }}" value="{{ opt.id }}">
+                <span>{{ opt.text }}</span>
+              </label>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <button
+      class="mt-2 inline-flex w-full justify-center rounded-full bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
+      Отправить ответы
+    </button>
+  </form>
+</div>
+{% endblock %}

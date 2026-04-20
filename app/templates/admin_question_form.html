@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Вопрос{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-xl font-semibold text-slate-900">Новый вопрос</h1>
+
+<form method="post" class="space-y-4 max-w-lg rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+  {{ form.hidden_tag() }}
+
+  <div>
+    {{ form.text.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.text(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs h-24") }}
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div>
+      {{ form.type.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.type(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.points.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.points(class="w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+  </div>
+
+  {{ form.submit(class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700") }}
+</form>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Тест{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-xl font-semibold text-slate-900">Тест</h1>
+
+<form method="post" class="space-y-4 max-w-lg rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+  {{ form.hidden_tag() }}
+
+  <div>
+    {{ form.title.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.title(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm") }}
+  </div>
+
+  <div>
+    {{ form.description.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.description(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs h-24") }}
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div>
+      {{ form.pass_score_percent.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.pass_score_percent(class="w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.max_attempts.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.max_attempts(class="w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+  </div>
+
+  {{ form.submit(class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700") }}
+</form>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Сертификат · {{ certificate.course.title }}{% endblock %}
+
+{% block content %}
+<style>
+  /* Небольшой кастомный стиль только для карточки сертификата */
+  .cert-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cert-card::before,
+  .cert-card::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.35;
+  }
+
+  .cert-card::before {
+    width: 240px;
+    height: 120px;
+    top: -60px;
+    left: -80px;
+    background: linear-gradient(135deg, #f97316, #fdba74);
+    border-radius: 999px;
+    transform: rotate(-10deg);
+  }
+
+  .cert-card::after {
+    width: 280px;
+    height: 140px;
+    bottom: -80px;
+    right: -90px;
+    background: linear-gradient(135deg, #fed7aa, #ffedd5);
+    border-radius: 999px;
+    transform: rotate(15deg);
+  }
+
+  .cert-inner {
+    position: relative;
+    z-index: 1;
+  }
+</style>
+
+<div class="flex flex-col gap-6">
+
+  <!-- Верхняя панель управления -->
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p class="text-[11px] uppercase tracking-wide text-slate-400">Сертификат</p>
+      <h1 class="text-lg font-semibold text-slate-900">
+        {{ certificate.course.title }}
+      </h1>
+      <p class="mt-1 text-[11px] text-slate-500">
+        Выдан:
+        {% set date_val = certificate.issue_date or certificate.created_at %}
+        {{ date_val.strftime('%d.%m.%Y') if date_val else 'дата не указана' }}
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <a href="{{ url_for('courses.certificates') }}"
+         class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50">
+        ← К списку сертификатов
+      </a>
+      <a href="{{ url_for('courses.certificate_pdf', cert_id=certificate.id) }}"
+         class="inline-flex items-center gap-1 rounded-full bg-orange-500 px-4 py-1.5 text-[11px] font-medium text-white hover:bg-orange-600">
+        ⬇ Скачать PDF
+      </a>
+      <button type="button"
+              onclick="window.print()"
+              class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50">
+        🖨 Печать
+      </button>
+    </div>
+  </div>
+
+  <!-- Фон + центрирование сертификата -->
+  <div class="rounded-3xl bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 p-4 md:p-6">
+    <div class="cert-card mx-auto max-w-4xl rounded-[32px] border border-orange-200/80 bg-white/95 p-6 shadow-lg md:p-10">
+      <div class="cert-inner flex flex-col gap-8">
+
+        <!-- Шапка: логотип и компания -->
+        <div class="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
+          <div class="flex items-center gap-3">
+            {% if branding and branding.logo_image_path %}
+              <div class="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-orange-200 bg-orange-50/60">
+                <img src="{{ url_for('static', filename=branding.logo_image_path) }}"
+                     alt="Логотип"
+                     class="max-h-14 max-w-full object-contain">
+              </div>
+            {% else %}
+              <div class="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-orange-400/80 bg-orange-50 text-[9px] font-semibold uppercase tracking-[0.18em] text-orange-600">
+                ЛОГО
+              </div>
+            {% endif %}
+            <div>
+              <p class="text-[11px] uppercase tracking-[0.22em] text-orange-500">
+                Официальный документ
+              </p>
+              <p class="mt-1 text-sm font-semibold text-slate-900">
+                {{ branding.company_name if branding and branding.company_name else "Образовательная платформа" }}
+              </p>
+              {% if branding and branding.company_subtitle %}
+                <p class="text-[11px] text-slate-500">
+                  {{ branding.company_subtitle }}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="flex flex-col items-center md:items-end">
+            <span class="rounded-full bg-slate-900 px-4 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-slate-50">
+              Сертификат о прохождении курса
+            </span>
+            <span class="mt-1 text-[10px] text-slate-500">
+              Сертификат № {{ certificate.certificate_code }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Главный заголовок -->
+        <div class="text-center">
+          <p class="text-[11px] uppercase tracking-[0.32em] text-orange-400">
+            Certificate
+          </p>
+          <h2 class="mt-1 text-3xl font-semibold tracking-[0.18em] text-slate-900 md:text-4xl">
+            СЕРТИФИКАТ
+          </h2>
+          <p class="mt-2 text-[11px] text-slate-500">
+            подтверждает успешное прохождение образовательной программы
+          </p>
+        </div>
+
+        <!-- Имя владельца -->
+        <div class="text-center">
+          <p class="text-[11px] uppercase tracking-[0.2em] text-slate-500">
+            Настоящим подтверждается, что
+          </p>
+          <p class="mt-3 inline-block border-b border-orange-300/80 pb-1 text-2xl font-semibold text-slate-900 md:text-[26px]">
+            {% if certificate.user and certificate.user.full_name %}
+              {{ certificate.user.full_name }}
+            {% elif certificate.user %}
+              {{ certificate.user.email }}
+            {% else %}
+              Участник курса
+            {% endif %}
+          </p>
+        </div>
+
+        <!-- Текст сертификата -->
+        <div class="mx-auto max-w-2xl text-center text-xs leading-relaxed text-slate-600 md:text-sm md:leading-7">
+          <p>
+            успешно прошёл(а) обучение по программе
+            <span class="font-semibold text-slate-900">«{{ certificate.course.title }}»</span>
+            на образовательной платформе
+            <span class="font-semibold text-slate-900">
+              {{ branding.company_name if branding and branding.company_name else "Caspian Lerna" }}
+            </span>.
+          </p>
+          <p class="mt-3">
+            В ходе обучения слушатель освоил(а) ключевые темы курса, прошёл(а) необходимые модули
+            и успешно сдал(а) итоговый тест, подтвердив требуемый уровень усвоения материала.
+          </p>
+        </div>
+
+        <!-- Дополнительная информация: даты и код -->
+        <div class="grid gap-3 text-[11px] text-slate-500 md:grid-cols-3">
+          <div class="rounded-2xl bg-orange-50/70 p-3 text-center md:text-left">
+            <p class="text-[10px] uppercase tracking-wide text-orange-500">
+              Дата выдачи
+            </p>
+            <p class="mt-1 text-xs font-medium text-slate-800">
+              {% set date_val = certificate.issue_date or certificate.created_at %}
+              {{ date_val.strftime('%d.%m.%Y') if date_val else '—' }}
+            </p>
+          </div>
+          <div class="rounded-2xl bg-orange-50/60 p-3 text-center md:text-left">
+            <p class="text-[10px] uppercase tracking-wide text-orange-500">
+              Формат обучения
+            </p>
+            <p class="mt-1 text-xs font-medium text-slate-800">
+              Онлайн, с тестированием и фиксацией прогресса
+            </p>
+          </div>
+          <div class="rounded-2xl bg-orange-50/70 p-3 text-center md:text-left">
+            <p class="text-[10px] uppercase tracking-wide text-orange-500">
+              Проверка сертификата
+            </p>
+            <p class="mt-1 text-xs font-medium text-slate-800">
+              По коду: {{ certificate.certificate_code }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Подпись и печать -->
+        <div class="flex flex-col items-center justify-between gap-6 md:flex-row">
+
+          <!-- Подпись -->
+          <div class="flex flex-col gap-1 text-xs text-slate-600">
+            <p class="text-[10px] uppercase tracking-wide text-slate-400">
+              {{ branding.director_title if branding and branding.director_title else "Руководитель программы" }}
+            </p>
+            <div class="flex items-center gap-3">
+              <div class="h-px w-32 bg-gradient-to-r from-transparent via-slate-400/70 to-transparent"></div>
+              <span class="text-[10px] text-slate-500">подпись</span>
+            </div>
+            <p class="mt-1 text-[11px] font-medium text-slate-800">
+              {{ branding.director_name if branding and branding.director_name else "Ответственное лицо" }}
+            </p>
+          </div>
+
+          <!-- Печать -->
+          <div class="relative h-24 w-24">
+            <div class="absolute inset-0 rounded-full border-[3px] border-orange-400/80 bg-orange-50/60 shadow-[0_0_0_1px_rgba(15,23,42,0.08)]"></div>
+            <div class="absolute inset-2 rounded-full border border-orange-300/70 bg-white/70 overflow-hidden flex items-center justify-center">
+              {% if branding and branding.seal_image_path %}
+                <img src="{{ url_for('static', filename=branding.seal_image_path) }}"
+                     alt="Печать"
+                     class="max-h-[80%] max-w-[80%] object-contain opacity-90">
+              {% else %}
+                <div class="text-center text-[8px] uppercase tracking-[0.2em] text-orange-700">
+                  Официальная<br>печать
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

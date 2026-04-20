@@ -1,0 +1,58 @@
+<header class="border-b border-slate-200 bg-white/80 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <!-- Лого -->
+    <a href="{{ url_for('main.index') }}" class="flex items-center gap-2">
+      <div class="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-500 to-accent text-white shadow-md">
+        <!-- простая иконка-книга -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5z"/>
+        </svg>
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span class="text-sm font-semibold tracking-tight text-slate-900">Caspian College Lerna</span>
+        <span class="text-[11px] text-slate-500">конструктор онлайн-курсов</span>
+      </div>
+    </a>
+
+    <!-- Навигация -->
+    <nav class="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+      <a href="{{ url_for('main.index') }}" class="hover:text-primary-600">Главная</a>
+      <a href="{{ url_for('main.courses_list') }}" class="hover:text-primary-600">Каталог курсов</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('courses.dashboard') }}" class="hover:text-primary-600">Личный кабинет</a>
+        {% if current_user.is_admin() %}
+          <a href="{{ url_for('admin.dashboard') }}" class="hover:text-primary-600">Админ-панель</a>
+          <a href="{{ url_for('admin.certificate_branding') }}" class="hover:text-primary-600">Сертификаты</a>
+
+        {% endif %}
+      {% endif %}
+    </nav>
+
+    <!-- Правый блок -->
+    <div class="flex items-center gap-3 text-sm">
+      {% if current_user.is_authenticated %}
+        <div class="hidden flex-col text-right text-xs leading-tight text-slate-600 sm:flex">
+          <span class="font-medium text-slate-900">{{ current_user.full_name }}</span>
+          <span class="text-[11px] text-slate-400">
+            {% if current_user.is_admin() %}Администратор{% else %}Обучающийся{% endif %}
+          </span>
+        </div>
+        <a href="{{ url_for('auth.logout') }}"
+           class="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200">
+          Выйти
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}"
+           class="rounded-full px-4 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100">
+          Войти
+        </a>
+        <a href="{{ url_for('auth.register') }}"
+           class="rounded-full bg-primary-600 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary-700">
+          Регистрация
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</header>

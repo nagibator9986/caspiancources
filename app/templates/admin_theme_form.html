@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Новая тема оформления{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-xl font-semibold text-slate-900">Новая тема оформления</h1>
+
+<form method="post" class="space-y-4 max-w-lg rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+  {{ form.hidden_tag() }}
+
+  <div>
+    {{ form.name.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.name(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100") }}
+  </div>
+
+  <div class="grid gap-3 md:grid-cols-3">
+    <div>
+      {{ form.primary_color.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.primary_color(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.accent_color.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.accent_color(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.background_color.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.background_color(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+  </div>
+
+  <div class="grid gap-3 md:grid-cols-2">
+    <div>
+      {{ form.card_style.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.card_style(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <div>
+      {{ form.font_family.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.font_family(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+  </div>
+
+  {{ form.submit(class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700") }}
+</form>
+{% endblock %}

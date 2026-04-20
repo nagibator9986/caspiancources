@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Урок{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-xl font-semibold text-slate-900">
+  {% if module %}Новый урок{% else %}Редактирование урока{% endif %}
+</h1>
+
+<form method="post" class="space-y-4 max-w-lg rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+  {{ form.hidden_tag() }}
+
+  <div>
+    {{ form.title.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.title(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm") }}
+  </div>
+
+  <div>
+    {{ form.summary.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+    {{ form.summary(class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs h-24") }}
+  </div>
+
+  <div class="flex items-center gap-4 text-xs">
+    <div>
+      {{ form.order_index.label(class="block text-xs font-medium text-slate-600 mb-1") }}
+      {{ form.order_index(class="w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs") }}
+    </div>
+    <label class="inline-flex items-center gap-2 mt-5">
+      {{ form.is_preview() }}
+      <span>Доступен без записи (превью)</span>
+    </label>
+  </div>
+
+  {{ form.submit(class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700") }}
+</form>
+{% endblock %}

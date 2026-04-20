@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Мои сертификаты · Caspian Lerna{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <div class="flex items-center justify-between gap-2">
+    <div>
+      <p class="text-[11px] uppercase tracking-wide text-slate-400">Личный кабинет</p>
+      <h1 class="text-xl font-semibold text-slate-900">Мои сертификаты</h1>
+      <p class="mt-1 text-xs text-slate-500">
+        Здесь хранятся все сертификаты, которые вы получили после прохождения курсов.
+      </p>
+    </div>
+  </div>
+
+  {% if certificates %}
+    <div class="space-y-3 text-xs">
+      {% for cert in certificates %}
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+          <div>
+            <p class="text-sm font-semibold text-slate-900">
+              {{ cert.course.title }}
+            </p>
+            <p class="text-[11px] text-slate-500 mt-0.5">
+              Сертификат № {{ cert.certificate_code }}
+              · Выдан: {{ cert.created_at.strftime('%d.%m.%Y') if cert.created_at else 'дата не указана' }}
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ url_for('courses.certificate_view', cert_id=cert.id) }}"
+               class="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-slate-800">
+              Открыть
+            </a>
+            <a href="{{ url_for('courses.certificate_pdf', cert_id=cert.id) }}"
+               class="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-medium text-primary-700 ring-1 ring-primary-100 hover:bg-primary-50">
+              ⬇ Скачать PDF
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="rounded-3xl bg-white p-6 text-sm text-slate-600 shadow-sm ring-1 ring-slate-100">
+      <p class="mb-1 font-medium text-slate-900">Сертификатов пока нет</p>
+      <p class="text-xs text-slate-500">
+        Пройдите один из доступных курсов и успешно сдайте финальный тест — сертификат появится в этом разделе.
+      </p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет · Caspian College Lerna{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-2xl font-semibold text-slate-900">Личный кабинет</h1>
+<p class="mb-6 text-sm text-slate-500">
+  Здесь вы видите свои активные курсы, прогресс обучения и полученные сертификаты.
+</p>
+
+<div class="grid gap-6 md:grid-cols-[2fr,1.2fr]">
+  <!-- Мои курсы -->
+  <section class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+    <div class="mb-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-sm font-semibold text-slate-900">Мои курсы</h2>
+        <p class="text-xs text-slate-500">Все курсы, на которые вы записаны.</p>
+      </div>
+      <a href="{{ url_for('main.courses_list') }}" class="text-xs font-medium text-primary-600 hover:text-primary-700">
+        Каталог курсов →
+      </a>
+    </div>
+
+    {% if user_courses %}
+      <div class="space-y-3 text-sm">
+        {% for uc in user_courses %}
+          <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+            <div>
+              <p class="text-sm font-medium text-slate-900">{{ uc.course.title }}</p>
+              <p class="text-xs text-slate-500">
+                Статус:
+                <span class="font-medium">
+                  {% if uc.status == 'enrolled' %} ещё не начат
+                  {% elif uc.status == 'in_progress' %} в процессе
+                  {% elif uc.status == 'completed' %} завершен
+                  {% else %} {{ uc.status }}
+                  {% endif %}
+                </span>
+                • Прогресс: {{ uc.progress_percent }}%
+              </p>
+            </div>
+            <a href="{{ url_for('courses.course_learn', slug=uc.course.slug) }}"
+               class="rounded-full bg-primary-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-700">
+              Открыть
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-xs text-slate-500">Вы ещё не записаны ни на один курс.</p>
+    {% endif %}
+  </section>
+
+  <!-- Сертификаты -->
+  <section class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+    <div class="mb-4">
+      <h2 class="text-sm font-semibold text-slate-900">Сертификаты</h2>
+      <p class="text-xs text-slate-500">Подтверждения завершения курсов.</p>
+    </div>
+
+    {% if certificates %}
+      <ul class="space-y-3 text-xs">
+        {% for c in certificates %}
+          <li class="flex items-center justify-between rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-emerald-800">
+            <div>
+              <p class="font-medium">{{ c.course.title }}</p>
+              <p class="text-[11px]">Выдан: {{ c.issue_date.strftime('%d.%m.%Y') }} · Код: {{ c.certificate_code }}</p>
+            </div>
+            <a href="{{ url_for('courses.certificate_view', cert_id=c.id) }}"
+               class="text-[11px] font-medium underline decoration-emerald-400">
+              Открыть
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-xs text-slate-500">Сертификатов пока нет. Завершите курс, чтобы получить первый.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

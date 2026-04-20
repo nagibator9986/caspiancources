@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Блоки урока · {{ lesson.title }}{% endblock %}
+{% block content %}
+<h1 class="mb-2 text-xl font-semibold text-slate-900">Блоки урока</h1>
+<p class="mb-4 text-xs text-slate-500">
+  Курс: {{ lesson.module.course.title }} · Модуль: {{ lesson.module.title }} · Урок: {{ lesson.title }}
+</p>
+
+<div class="mb-4">
+  <a href="{{ url_for('admin.lesson_block_create', lesson_id=lesson.id) }}"
+     class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+    + Добавить блок
+  </a>
+</div>
+
+{% if blocks %}
+  <div class="space-y-3 text-sm">
+    {% for block in blocks %}
+      <div class="flex items-center justify-between rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100">
+        <div class="text-xs">
+          <p class="font-medium text-slate-900">
+            {{ loop.index }}. [{{ block.block_type }}] {{ block.title or "(без заголовка)" }}
+          </p>
+          {% if block.block_type == 'text' or block.block_type == 'quote' %}
+            <p class="text-[11px] text-slate-500 line-clamp-2">
+              {{ block.text_content }}
+            </p>
+          {% elif block.block_type == 'video' %}
+            <p class="text-[11px] text-slate-500">
+              {% if block.video_source == 'upload' %}
+                Видео-файл: {{ block.video_file_path }}
+              {% else %}
+                Ссылка: {{ block.video_url }}
+              {% endif %}
+            </p>
+          {% elif block.block_type == 'image' %}
+            <p class="text-[11px] text-slate-500">
+              Картинка: {{ block.image_path }}
+            </p>
+          {% elif block.block_type == 'file' %}
+            <p class="text-[11px] text-slate-500">
+              Файл: {{ block.file_name }}
+            </p>
+          {% endif %}
+        </div>
+        <span class="rounded-full bg-slate-50 px-2 py-1 text-[11px] text-slate-500">
+          order: {{ block.order_index }}
+        </span>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-xs text-slate-500">
+    В этом уроке пока нет блоков. Нажмите «Добавить блок», чтобы создать текст, видео, картинку или документ.
+  </p>
+{% endif %}
+{% endblock %}

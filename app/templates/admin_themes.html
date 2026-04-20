@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Темы оформления · Caspian College Lerna{% endblock %}
+{% block content %}
+<h1 class="mb-3 text-xl font-semibold text-slate-900">Темы оформления курсов</h1>
+
+<div class="mb-4">
+  <a href="{{ url_for('admin.theme_create') }}"
+     class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+    + Создать тему
+  </a>
+</div>
+
+{% if themes %}
+  <div class="grid gap-4 md:grid-cols-3 text-xs">
+    {% for t in themes %}
+      <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+        <p class="mb-1 text-sm font-semibold text-slate-900">{{ t.name }}</p>
+        <p class="mb-2 text-[11px] text-slate-500">{{ t.font_family }}</p>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="h-4 w-4 rounded-full" style="background: {{ t.primary_color }};"></span>
+          <span class="h-4 w-4 rounded-full" style="background: {{ t.accent_color }};"></span>
+          <span class="h-4 w-4 rounded-full border" style="background: {{ t.background_color }};"></span>
+        </div>
+        <p class="text-[11px] text-slate-500">
+          Стиль карточек: {{ t.card_style or 'по умолчанию' }}
+        </p>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-xs text-slate-500">Темы ещё не созданы. Нажмите «Создать тему».</p>
+{% endif %}
+{% endblock %}

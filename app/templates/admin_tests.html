@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Тесты{% endblock %}
+{% block content %}
+<h1 class="mb-2 text-xl font-semibold text-slate-900">Тесты</h1>
+
+{% if module %}
+  <p class="mb-2 text-xs text-slate-500">
+    Модуль: {{ module.title }} (курс: {{ module.course.title }})
+  </p>
+  <div class="mb-3">
+    <a href="{{ url_for('admin.module_test_create', module_id=module.id) }}"
+       class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+      + Тест по модулю
+    </a>
+  </div>
+{% elif course %}
+  <p class="mb-2 text-xs text-slate-500">
+    Финальные тесты курса: {{ course.title }}
+  </p>
+  <div class="mb-3">
+    <a href="{{ url_for('admin.course_test_create', course_id=course.id) }}"
+       class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+      + Финальный тест
+    </a>
+  </div>
+{% endif %}
+
+{% if tests %}
+  <div class="space-y-3 text-xs">
+    {% for t in tests %}
+      <div class="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">{{ t.title }}</p>
+          {% if t.description %}
+            <p class="text-[11px] text-slate-500 line-clamp-1">{{ t.description }}</p>
+          {% endif %}
+          <p class="mt-1 text-[11px] text-slate-400">
+            Проходной балл: {{ t.pass_score_percent }}% · Попыток:
+            {% if t.max_attempts %}{{ t.max_attempts }}{% else %}∞{% endif %}
+          </p>
+        </div>
+        <a href="{{ url_for('admin.questions_list', test_id=t.id) }}"
+           class="text-[11px] text-primary-600 hover:text-primary-700">
+          Вопросы →
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-xs text-slate-500">Тесты ещё не созданы.</p>
+{% endif %}
+{% endblock %}

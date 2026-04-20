@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} — Программа курса{% endblock %}
+
+{% block content %}
+
+<style>
+  :root {
+    --course-primary: {{ course.theme.primary_color if course.theme else '#6366F1' }};
+    --course-accent: {{ course.theme.accent_color if course.theme else '#22C55E' }};
+    --course-bg: {{ course.theme.background_color if course.theme else '#F8FAFF' }};
+  }
+</style>
+
+<!-- Заголовочная секция курса -->
+<section class="rounded-3xl border border-slate-200 bg-white overflow-hidden shadow-sm mb-6">
+  <div class="grid md:grid-cols-[2.5fr,1.5fr] gap-4">
+    
+    <!-- Левая колонка -->
+    <div class="p-5 md:p-6">
+      <p class="uppercase text-[11px] tracking-wide text-slate-400 mb-1">Курс</p>
+
+      <h1 class="text-2xl font-semibold text-slate-900 mb-2">{{ course.title }}</h1>
+
+      {% if course.description %}
+        <p class="text-xs sm:text-sm text-slate-600 mb-3">{{ course.description }}</p>
+      {% endif %}
+
+      <!-- Теги курса -->
+      <div class="flex flex-wrap gap-2 text-[11px] text-slate-500 mb-4">
+        <span class="rounded-full bg-slate-50 px-3 py-1">Категория: {{ course.category or 'не указана' }}</span>
+        <span class="rounded-full bg-slate-50 px-3 py-1">Уровень: {{ course.level or 'любой' }}</span>
+
+        {% if course.language %}
+          <span class="rounded-full bg-slate-50 px-3 py-1">Язык: {{ course.language|upper }}</span>
+        {% endif %}
+      </div>
+
+      {% if course.requirements %}
+        <div class="mb-3">
+          <p class="uppercase text-[11px] font-semibold tracking-wide text-slate-400 mb-1">Требования</p>
+          <p class="text-xs text-slate-600 whitespace-pre-wrap">{{ course.requirements }}</p>
+        </div>
+      {% endif %}
+
+      {% if course.outcomes %}
+        <div>
+          <p class="uppercase text-[11px] font-semibold tracking-wide text-slate-400 mb-1">Вы научитесь</p>
+          <p class="text-xs text-slate-600 whitespace-pre-wrap">{{ course.outcomes }}</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Правая колонка с картинкой -->
+    <div class="relative bg-[var(--course-bg)]">
+      {% if course.hero_image_url %}
+        <div class="absolute inset-0">
+          <img src="{{ course.hero_image_url }}" class="w-full h-full object-cover opacity-80" alt="">
+        </div>
+      {% endif %}
+
+      <div class="relative bg-gradient-to-t from-black/50 via-black/10 to-transparent p-5 md:p-6 h-full flex flex-col justify-between">
+
+        <!-- Прогресс -->
+        <div class="flex justify-between items-center text-xs text-slate-100 gap-3">
+
+          <div class="flex gap-2 items-center">
+            {% if course.logo_url %}
+              <div class="w-9 h-9 rounded-2xl overflow-hidden bg-white/10 ring-1 ring-white/20">
+                <img src="{{ course.logo_url }}" class="w-full h-full object-cover" alt="">
+              </div>
+            {% else %}
+              <div class="w-9 h-9 rounded-2xl flex items-center justify-center bg-slate-900/70 ring-1 ring-white/20">🎓</div>
+            {% endif %}
+
+            <div>
+              <p class="uppercase text-[11px] tracking-wide text-slate-100/80 font-semibold">Прогресс по курсу</p>
+              <p class="text-[11px] text-slate-200">{{ user_course.progress_percent }}% завершено</p>
+            </div>
+          </div>
+
+          <span class="rounded-full bg-black/30 px-3 py-1 text-[11px]">
+            Статус:
+            {% if user_course.status == "enrolled" %} ещё не начат
+            {% elif user_course.status == "in_progress" %} в процессе
+            {% elif user_course.status == "completed" %} завершён
+            {% else %} {{ user_course.status }}
+            {% endif %}
+          </span>
+        </div>
+
+        <!-- Прогресс-бар -->
+        <div class="mt-4">
+          <div class="flex justify-between text-[11px] text-slate-200 mb-1">
+            <span>Прогресс</span>
+            <span>{{ user_course.progress_percent }}%</span>
+          </div>
+
+          <div class="h-1.5 rounded-full overflow-hidden bg-slate-100/40">
+            <div class="h-full bg-[var(--course-primary)] rounded-full"
+                 style="width: {{ user_course.progress_percent }}%;">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Контентная сетка -->
+<div class="grid gap-6 md:grid-cols-[2.2fr,1fr]">
+
+  <!-- Модули и уроки -->
+  <section class="space-y-4">
+
+    {% for module in modules %}
+      <article class="rounded-3xl bg-white shadow-sm ring-1 ring-slate-100 p-4">
+
+        <!-- Шапка модуля -->
+        <div class="flex justify-between items-center mb-2">
+          <div>
+            <p class="uppercase text-[11px] tracking-wide text-slate-400 font-semibold">Модуль {{ loop.index }}</p>
+            <h2 class="text-sm font-semibold text-slate-900">{{ module.title }}</h2>
+          </div>
+
+          <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 text-[11px] text-slate-500">
+            {{ "Последовательный доступ" if course.is_sequential else "Свободный доступ" }}
+          </span>
+        </div>
+
+        {% if module.description %}
+          <p class="text-xs text-slate-600 mb-3">{{ module.description }}</p>
+        {% endif %}
+
+        <!-- Уроки -->
+        <div class="mb-3">
+          <p class="uppercase text-[11px] tracking-wide text-slate-400 font-semibold mb-1">Уроки</p>
+
+          <ul class="space-y-2 text-xs">
+            {% for lesson in module.lessons %}
+              <li>
+                <a class="flex justify-between items-center gap-3 px-3 py-2 bg-slate-50 rounded-2xl hover:bg-slate-100 text-slate-800"
+                   href="{{ url_for('courses.lesson_view', slug=course.slug, lesson_id=lesson.id) }}">
+
+                  <div>
+                    <p class="font-medium">{{ lesson.title }}</p>
+                    {% if lesson.summary %}
+                      <p class="text-[11px] text-slate-500 line-clamp-1">{{ lesson.summary }}</p>
+                    {% endif %}
+                  </div>
+
+                  <span class="text-[11px] text-slate-400">Открыть →</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="text-[11px] text-slate-400">Уроки отсутствуют</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Тесты модуля -->
+        {% if module.tests %}
+          <div class="border-t border-slate-100 pt-3">
+            <p class="uppercase text-[11px] tracking-wide text-slate-400 font-semibold mb-2">Тесты</p>
+
+            <div class="flex flex-wrap gap-2">
+              {% for test in module.tests %}
+                <a class="inline-flex items-center gap-2 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-full text-[11px] font-medium text-amber-700"
+                   href="{{ url_for('courses.take_test', test_id=test.id) }}">
+                  Тест: {{ test.title }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      </article>
+
+    {% else %}
+      <p class="text-xs text-slate-500">Модули ещё не добавлены.</p>
+    {% endfor %}
+  </section>
+
+  <!-- Правая колонка -->
+  <aside class="space-y-4">
+
+    <!-- Финальный тест -->
+    <section class="bg-slate-900 rounded-3xl p-5 text-xs text-slate-100">
+
+      <p class="uppercase text-[11px] text-primary-200 font-semibold tracking-wide mb-1">Финальная аттестация</p>
+      <p class="text-sm text-white font-medium mb-3">Финальные тесты курса</p>
+
+      {% if course.tests %}
+        <div class="flex flex-wrap gap-2 mb-3">
+
+          {% for test in course.tests %}
+
+            {% if all_lessons_completed %}
+              <a href="{{ url_for('courses.take_test', test_id=test.id) }}"
+                 class="inline-flex items-center gap-2 bg-[var(--course-primary)] hover:bg-indigo-500 px-3 py-1.5 rounded-full text-[11px] text-white font-medium">
+                ✅ Финальный тест: {{ test.title }}
+              </a>
+            {% else %}
+              <button disabled
+                      class="inline-flex items-center gap-2 bg-slate-200 text-slate-500 cursor-not-allowed px-3 py-1.5 rounded-full text-[11px] font-medium">
+                🔒 Тест откроется после прохождения всех уроков
+              </button>
+            {% endif %}
+
+          {% endfor %}
+        </div>
+
+        {% if all_lessons_completed %}
+          <p class="text-[11px] text-slate-300">
+            После успешной сдачи теста сертификат появится в личном кабинете.
+          </p>
+        {% else %}
+          <p class="text-[11px] text-slate-300">
+            Чтобы открыть финальный тест, завершите все уроки курса.
+          </p>
+        {% endif %}
+
+      {% else %}
+        <p class="text-[11px] text-slate-300">
+          Финальные тесты пока не настроены.
+        </p>
+      {% endif %}
+    </section>
+
+    <!-- Как проходить курс -->
+    <section class="bg-white rounded-3xl shadow-sm ring-1 ring-slate-100 p-4 text-xs text-slate-600">
+      <p class="uppercase text-[11px] font-semibold tracking-wide text-slate-400 mb-2">Как проходить курс</p>
+
+      <ul class="space-y-1">
+        <li>• Изучайте уроки по порядку.</li>
+        <li>• Отмечайте уроки как пройденные.</li>
+        <li>• Выполняйте модульные тесты.</li>
+        <li>• Сдайте финальный тест.</li>
+        <li>• Получите сертификат.</li>
+      </ul>
+    </section>
+
+  </aside>
+</div>
+
+{% endblock %}
