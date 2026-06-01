@@ -2,174 +2,153 @@
 {% block title %}Настройки сертификатов{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-6">
 
-  <!-- Заголовок страницы -->
   <header class="flex items-center justify-between gap-4">
     <div>
-      <p class="text-[11px] uppercase tracking-wide text-slate-400">
-        Админка · Сертификаты
-      </p>
-      <h1 class="mt-1 text-xl font-semibold text-slate-900">
-        Брендинг сертификатов
-      </h1>
+      <p class="text-[11px] uppercase tracking-wide text-slate-400">Админка · Сертификаты</p>
+      <h1 class="mt-1 text-xl font-semibold text-slate-900">Брендинг сертификатов</h1>
       <p class="mt-1 text-xs text-slate-500 max-w-xl">
-        Здесь ты настраиваешь, как выглядят сертификаты: название компании,
-        подпись руководителя и изображения логотипа и печати.
+        Настройте, как выглядят HTML- и PDF-сертификаты: основная компания, партнёрское учреждение,
+        подпись руководителя, логотипы и печать.
       </p>
     </div>
-
     <a href="{{ url_for('admin.dashboard') }}"
        class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-[11px] text-slate-600 hover:bg-slate-50">
       ← В админ-дэшборд
     </a>
   </header>
 
-  <!-- Основная карточка формы -->
   <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
     <form
       method="post"
       enctype="multipart/form-data"
       action="{{ url_for('admin.certificate_branding') }}"
-      class="space-y-6"
-    >
+      class="space-y-8">
       {{ form.csrf_token }}
 
-      <!-- Блок текста компании -->
-      <div class="grid gap-4 md:grid-cols-2">
-        <div class="space-y-3">
+      <!-- ============ КОМПАНИЯ (ОСНОВНАЯ) ============ -->
+      <fieldset class="space-y-4">
+        <legend class="text-xs font-semibold uppercase tracking-wide text-orange-600">
+          Основная компания (выдаёт сертификат)
+        </legend>
+        <div class="grid gap-4 md:grid-cols-2">
           <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">
-              {{ form.company_name.label.text }}
-            </label>
+            <label class="block text-xs font-medium text-slate-700 mb-1">{{ form.company_name.label.text }}</label>
             {{ form.company_name(
               class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100",
               placeholder='Например: ИП "Illuminart"'
             ) }}
-            {% for error in form.company_name.errors %}
-              <p class="mt-1 text-[11px] text-red-500">{{ error }}</p>
-            {% endfor %}
+            {% for e in form.company_name.errors %}<p class="mt-1 text-[11px] text-red-500">{{ e }}</p>{% endfor %}
           </div>
-
           <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">
-              {{ form.company_subtitle.label.text }}
-            </label>
+            <label class="block text-xs font-medium text-slate-700 mb-1">{{ form.company_subtitle.label.text }}</label>
             {{ form.company_subtitle(
               class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100",
-              placeholder="Образовательная платформа Caspian Lerna"
+              placeholder="Образовательная платформа Lerna"
             ) }}
-            {% for error in form.company_subtitle.errors %}
-              <p class="mt-1 text-[11px] text-red-500">{{ error }}</p>
-            {% endfor %}
           </div>
         </div>
+      </fieldset>
 
-        <div class="space-y-3">
+      <!-- ============ ПАРТНЁР (УЧЕБНОЕ ЗАВЕДЕНИЕ) ============ -->
+      <fieldset class="space-y-4">
+        <legend class="text-xs font-semibold uppercase tracking-wide text-sky-600">
+          Партнёр обучения (учебное заведение, опционально)
+        </legend>
+        <div class="grid gap-4 md:grid-cols-2">
           <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">
-              {{ form.director_title.label.text }}
-            </label>
-            {{ form.director_title(
+            <label class="block text-xs font-medium text-slate-700 mb-1">{{ form.partner_name.label.text }}</label>
+            {{ form.partner_name(
               class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100",
+              placeholder="Caspian College"
+            ) }}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">{{ form.partner_subtitle.label.text }}</label>
+            {{ form.partner_subtitle(
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100",
+              placeholder="Учебный партнёр"
+            ) }}
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ============ ПОДПИСЬ ============ -->
+      <fieldset class="space-y-4">
+        <legend class="text-xs font-semibold uppercase tracking-wide text-emerald-600">Подпись</legend>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">{{ form.director_title.label.text }}</label>
+            {{ form.director_title(
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs",
               placeholder="Руководитель"
             ) }}
-            {% for error in form.director_title.errors %}
-              <p class="mt-1 text-[11px] text-red-500">{{ error }}</p>
-            {% endfor %}
           </div>
-
           <div>
-            <label class="block text-xs font-medium text-slate-700 mb-1">
-              {{ form.director_name.label.text }}
-            </label>
+            <label class="block text-xs font-medium text-slate-700 mb-1">{{ form.director_name.label.text }}</label>
             {{ form.director_name(
-              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100",
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs",
               placeholder="ФИО руководителя для подписи"
             ) }}
-            {% for error in form.director_name.errors %}
-              <p class="mt-1 text-[11px] text-red-500">{{ error }}</p>
-            {% endfor %}
           </div>
         </div>
-      </div>
+      </fieldset>
 
-      <!-- Картинки логотипа и печати -->
-      <div class="grid gap-6 md:grid-cols-2">
-        <!-- Логотип -->
-        <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-          <p class="mb-1 text-xs font-semibold text-slate-800">
-            Логотип компании
-          </p>
-          <p class="mb-3 text-[11px] text-slate-500">
-            Отображается в верхней части сертификата (если загружен).
-          </p>
-
-          {% if branding and branding.logo_image_path %}
-            <div class="mb-3">
-              <p class="mb-1 text-[11px] text-slate-500">Текущий логотип:</p>
-<div class="rounded-2xl bg-white p-3 ring-1 ring-slate-200 w-32 h-32">
-  <img
-    src="{{ url_for('static', filename=branding.logo_image_path) }}"
-    class="w-full h-full object-contain"
-  >
-</div>
-
-
-
-
-            </div>
-          {% endif %}
-
-          <label class="block text-[11px] font-medium text-slate-700 mb-1">
-            {{ form.logo_image.label.text }}
-          </label>
-          {{ form.logo_image(
-            class="block w-full text-[11px] text-slate-600 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primary-600 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:text-white hover:file:bg-primary-700"
-          ) }}
-          {% for error in form.logo_image.errors %}
-            <p class="mt-1 text-[11px] text-red-500">{{ error }}</p>
-          {% endfor %}
-        </div>
-
-        <!-- Печать -->
-        <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-          <p class="mb-1 text-xs font-semibold text-slate-800">
-            Печать на сертификате
-          </p>
-          <p class="mb-3 text-[11px] text-slate-500">
-            PNG/JPG с прозрачным фоном выглядит лучше всего. Отображается внизу справа.
-          </p>
-
-          {% if branding and branding.seal_image_path %}
-            <div class="mb-3">
-              <p class="mb-1 text-[11px] text-slate-500">Текущая печать:</p>
-              <div class="inline-flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-slate-200">
-                <img
-                  src="{{ url_for('static', filename=branding.seal_image_path) }}"
-                  alt="Печать"
-                  class="h-16 w-16 object-contain"
-                >
+      <!-- ============ ИЗОБРАЖЕНИЯ ============ -->
+      <fieldset class="space-y-3">
+        <legend class="text-xs font-semibold uppercase tracking-wide text-slate-700">Изображения</legend>
+        <div class="grid gap-4 md:grid-cols-3">
+          <!-- Логотип Illuminart -->
+          <div class="rounded-2xl border border-orange-100 bg-orange-50/40 p-4">
+            <p class="mb-1 text-xs font-semibold text-slate-800">Логотип компании</p>
+            <p class="mb-3 text-[11px] text-slate-500">Основной (Illuminart). Слева в шапке сертификата.</p>
+            {% if branding and branding.logo_image_path %}
+              <div class="mb-3 rounded-2xl bg-white p-2 ring-1 ring-slate-200 inline-block">
+                <img src="{{ url_for('static', filename=branding.logo_image_path) }}"
+                     class="h-20 w-20 object-contain">
               </div>
-            </div>
-          {% endif %}
+            {% endif %}
+            {{ form.logo_image(
+              class="block w-full text-[11px] text-slate-600 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primary-600 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:text-white hover:file:bg-primary-700"
+            ) }}
+          </div>
 
-          <label class="block text-[11px] font-medium text-slate-700 mb-1">
-            {{ form.seal_image.label.text }}
-          </label>
-          {{ form.seal_image(
-            class="block w-full text-[11px] text-slate-600 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primary-600 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:text-white hover:file:bg-primary-700"
-          ) }}
-          {% for error in form.seal_image.errors %}
-            <p class="mt-1 text-[11px] text-red-500">{{ error }}</p>
-          {% endfor %}
+          <!-- Логотип партнёра -->
+          <div class="rounded-2xl border border-sky-100 bg-sky-50/40 p-4">
+            <p class="mb-1 text-xs font-semibold text-slate-800">Логотип партнёра</p>
+            <p class="mb-3 text-[11px] text-slate-500">Caspian College. Справа в шапке сертификата.</p>
+            {% if branding and branding.partner_logo_image_path %}
+              <div class="mb-3 rounded-2xl bg-white p-2 ring-1 ring-slate-200 inline-block">
+                <img src="{{ url_for('static', filename=branding.partner_logo_image_path) }}"
+                     class="h-20 w-20 object-contain">
+              </div>
+            {% endif %}
+            {{ form.partner_logo_image(
+              class="block w-full text-[11px] text-slate-600 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-sky-600 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:text-white hover:file:bg-sky-700"
+            ) }}
+          </div>
+
+          <!-- Печать -->
+          <div class="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
+            <p class="mb-1 text-xs font-semibold text-slate-800">Печать</p>
+            <p class="mb-3 text-[11px] text-slate-500">PNG с прозрачным фоном выглядит лучше всего.</p>
+            {% if branding and branding.seal_image_path %}
+              <div class="mb-3 rounded-2xl bg-white p-2 ring-1 ring-slate-200 inline-block">
+                <img src="{{ url_for('static', filename=branding.seal_image_path) }}"
+                     class="h-20 w-20 object-contain">
+              </div>
+            {% endif %}
+            {{ form.seal_image(
+              class="block w-full text-[11px] text-slate-600 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-emerald-600 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:text-white hover:file:bg-emerald-700"
+            ) }}
+          </div>
         </div>
-      </div>
+      </fieldset>
 
-      <!-- Кнопка сохранить -->
       <div class="flex items-center justify-between border-t border-slate-100 pt-4">
         <p class="text-[11px] text-slate-500">
-          Изменения повлияют на все новые и существующие сертификаты при генерации PDF.
+          Изменения сразу применяются ко всем сертификатам (HTML и PDF).
         </p>
         {{ form.submit(
           class="inline-flex items-center gap-2 rounded-full bg-primary-600 px-5 py-2 text-xs font-medium text-white hover:bg-primary-700"
@@ -177,6 +156,5 @@
       </div>
     </form>
   </section>
-
 </div>
 {% endblock %}

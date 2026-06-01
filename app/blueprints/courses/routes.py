@@ -580,43 +580,83 @@ def certificate_pdf(cert_id):
     corner_dots(margin + 6, page_h - margin - 14)
     corner_dots(page_w - margin - 14, page_h - margin - 14)
 
-    # ============ ШАПКА ============
+    # ============ ШАПКА: ДВА ЛОГОТИПА ============
     top_y = page_h - margin - 18 * mm
+    issued_date = cert.issue_date or datetime.utcnow()
 
-    # Логотип слева
+    # --- Слева: логотип Illuminart + название ---
     logo_path = _branding_image_path(branding.logo_image_path)
     if logo_path:
         try:
             c.drawImage(
                 ImageReader(logo_path),
-                margin + 14 * mm, top_y - 14 * mm,
+                margin + 12 * mm, top_y - 14 * mm,
                 width=22 * mm, height=22 * mm,
                 preserveAspectRatio=True, mask="auto",
             )
         except Exception:
             pass
 
-    c.setFillColor(colors.HexColor("#7A4A1E"))
-    c.setFont(font_regular, 8.5)
-    c.drawString(margin + 42 * mm, top_y - 2 * mm, "ОФИЦИАЛЬНЫЙ ДОКУМЕНТ")
+    c.setFillColor(colors.HexColor("#C2782C"))
+    c.setFont(font_regular, 8)
+    c.drawString(margin + 40 * mm, top_y - 2 * mm, "ОФИЦИАЛЬНЫЙ ДОКУМЕНТ")
 
     c.setFillColor(colors.HexColor("#1F2937"))
     c.setFont(font_bold, 12)
-    c.drawString(margin + 42 * mm, top_y - 8 * mm, branding.company_name or "Caspian College Lerna")
+    c.drawString(margin + 40 * mm, top_y - 8 * mm, branding.company_name or 'ИП "Illuminart"')
 
     if branding.company_subtitle:
-        c.setFont(font_regular, 8.5)
+        c.setFont(font_regular, 8)
         c.setFillColor(colors.HexColor("#64748B"))
-        c.drawString(margin + 42 * mm, top_y - 13 * mm, branding.company_subtitle)
+        c.drawString(margin + 40 * mm, top_y - 13 * mm, branding.company_subtitle)
 
-    # Код и дата справа
-    issued_date = cert.issue_date or datetime.utcnow()
-    c.setFont(font_regular, 8.5)
+    # --- В центре сверху: бейдж «Сертификат о прохождении курса» ---
+    badge_text = "СЕРТИФИКАТ О ПРОХОЖДЕНИИ КУРСА"
+    badge_w = pdfmetrics.stringWidth(badge_text, font_regular, 7.5) + 14
+    badge_x = (page_w - badge_w) / 2
+    badge_y = top_y - 6 * mm
+    c.setFillColor(colors.HexColor("#0F172A"))
+    c.roundRect(badge_x, badge_y, badge_w, 5.5 * mm, 6, stroke=0, fill=1)
+    c.setFillColor(colors.HexColor("#F8FAFC"))
+    c.setFont(font_regular, 7.5)
+    c.drawCentredString(page_w / 2, badge_y + 1.8 * mm, badge_text)
+
     c.setFillColor(colors.HexColor("#64748B"))
-    c.drawRightString(page_w - margin - 12 * mm, top_y - 2 * mm,
-                      f"Сертификат № {cert.certificate_code}")
-    c.drawRightString(page_w - margin - 12 * mm, top_y - 8 * mm,
-                      f"Дата выдачи: {issued_date.strftime('%d.%m.%Y')}")
+    c.setFont(font_regular, 7.5)
+    c.drawCentredString(page_w / 2, top_y - 13 * mm,
+                        f"№ {cert.certificate_code}  ·  {issued_date.strftime('%d.%m.%Y')}")
+
+    # --- Справа: логотип партнёра + название ---
+    partner_logo_path = _branding_image_path(branding.partner_logo_image_path)
+    partner_name = branding.partner_name or "Caspian College"
+    partner_sub = branding.partner_subtitle or "Учебный партнёр"
+
+    if partner_logo_path:
+        try:
+            c.drawImage(
+                ImageReader(partner_logo_path),
+                page_w - margin - 34 * mm, top_y - 14 * mm,
+                width=22 * mm, height=22 * mm,
+                preserveAspectRatio=True, mask="auto",
+            )
+        except Exception:
+            pass
+    else:
+        # Лёгкая плашка-заглушка, если логотип партнёра не загружен
+        c.setStrokeColor(colors.HexColor("#7DD3FC"))
+        c.setLineWidth(1.2)
+        c.roundRect(page_w - margin - 34 * mm, top_y - 14 * mm, 22 * mm, 22 * mm, 4, stroke=1, fill=0)
+        c.setFillColor(colors.HexColor("#0EA5E9"))
+        c.setFont(font_bold, 7)
+        c.drawCentredString(page_w - margin - 23 * mm, top_y - 7 * mm, "LOGO")
+
+    c.setFillColor(colors.HexColor("#0EA5E9"))
+    c.setFont(font_regular, 8)
+    c.drawRightString(page_w - margin - 38 * mm, top_y - 2 * mm, partner_sub.upper())
+
+    c.setFillColor(colors.HexColor("#1F2937"))
+    c.setFont(font_bold, 12)
+    c.drawRightString(page_w - margin - 38 * mm, top_y - 8 * mm, partner_name)
 
     # ============ ЗАГОЛОВОК (по центру) ============
     # Координаты считаем от низа страницы (origin reportlab — нижний-левый).
@@ -707,45 +747,30 @@ def certificate_pdf(cert_id):
         "подтвердив требуемый уровень усвоения учебного материала.",
     )
 
-    # ============ ИНФО-БЛОКИ ============
-    block_y = 38 * mm
-    block_w = 58 * mm
-    block_h = 16 * mm
-    gap = 5 * mm
-    total_w = block_w * 3 + gap * 2
-    start_x = (page_w - total_w) / 2
-
-    def info_block(x, label, value):
-        c.setFillColor(colors.HexColor("#FFF3E0"))
-        c.roundRect(x, block_y, block_w, block_h, 5, stroke=0, fill=1)
-        c.setStrokeColor(colors.HexColor("#F4C58A"))
-        c.setLineWidth(0.6)
-        c.roundRect(x, block_y, block_w, block_h, 5, stroke=1, fill=0)
-        c.setFillColor(colors.HexColor("#C2782C"))
-        c.setFont(font_regular, 7)
-        c.drawString(x + 4 * mm, block_y + block_h - 5 * mm, label)
-        c.setFillColor(colors.HexColor("#1F2937"))
-        c.setFont(font_bold, 9.5)
-        c.drawString(x + 4 * mm, block_y + 4 * mm, value)
-
-    info_block(start_x, "ДАТА ВЫДАЧИ", issued_date.strftime("%d.%m.%Y"))
-    info_block(start_x + block_w + gap, "ФОРМАТ ОБУЧЕНИЯ", "Онлайн · с тестированием")
-    # Если код длинный — делаем меньший шрифт, чтобы влез в блок
+    # ============ КОД ПРОВЕРКИ (один центральный блок) ============
     code_text = cert.certificate_code
-    code_size = 9.5
-    while pdfmetrics.stringWidth(code_text, font_bold, code_size) > block_w - 8 * mm and code_size > 7:
+    code_size = 13
+    while pdfmetrics.stringWidth(code_text, font_bold, code_size) > 70 * mm and code_size > 9:
         code_size -= 0.5
+
+    code_block_w = max(pdfmetrics.stringWidth(code_text, font_bold, code_size) + 22 * mm, 70 * mm)
+    code_block_h = 14 * mm
+    code_block_x = (page_w - code_block_w) / 2
+    code_block_y = 40 * mm
+
     c.setFillColor(colors.HexColor("#FFF3E0"))
-    c.roundRect(start_x + (block_w + gap) * 2, block_y, block_w, block_h, 5, stroke=0, fill=1)
+    c.roundRect(code_block_x, code_block_y, code_block_w, code_block_h, 6, stroke=0, fill=1)
     c.setStrokeColor(colors.HexColor("#F4C58A"))
-    c.setLineWidth(0.6)
-    c.roundRect(start_x + (block_w + gap) * 2, block_y, block_w, block_h, 5, stroke=1, fill=0)
+    c.setLineWidth(0.7)
+    c.roundRect(code_block_x, code_block_y, code_block_w, code_block_h, 6, stroke=1, fill=0)
+
     c.setFillColor(colors.HexColor("#C2782C"))
     c.setFont(font_regular, 7)
-    c.drawString(start_x + (block_w + gap) * 2 + 4 * mm, block_y + block_h - 5 * mm, "КОД ПРОВЕРКИ")
+    c.drawCentredString(page_w / 2, code_block_y + code_block_h - 4.5 * mm, "КОД ПРОВЕРКИ")
+
     c.setFillColor(colors.HexColor("#1F2937"))
     c.setFont(font_bold, code_size)
-    c.drawString(start_x + (block_w + gap) * 2 + 4 * mm, block_y + 4 * mm, code_text)
+    c.drawCentredString(page_w / 2, code_block_y + 4 * mm, code_text)
 
     # ============ ПОДПИСЬ И ПЕЧАТЬ ============
     sign_y = 8 * mm  # базовая координата для нижнего ряда

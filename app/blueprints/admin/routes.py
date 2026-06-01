@@ -91,14 +91,27 @@ def save_upload(file_storage, subdir: str):
 #   Брендинг сертификата
 # ==========================
 class CertificateBrandingForm(FlaskForm):
+    # Основная компания (юр. лицо)
     company_name = StringField(
-        "Название компании на сертификате",
+        "Название компании (юр. лицо)",
         validators=[DataRequired(), Length(max=255)],
     )
     company_subtitle = StringField(
-        "Подзаголовок (описание компании / платформы)",
+        "Подзаголовок компании",
         validators=[Optional(), Length(max=255)],
     )
+
+    # Партнёр (учебное заведение / партнёр обучения)
+    partner_name = StringField(
+        "Название партнёра (учебного заведения)",
+        validators=[Optional(), Length(max=255)],
+    )
+    partner_subtitle = StringField(
+        "Подпись партнёра",
+        validators=[Optional(), Length(max=255)],
+    )
+
+    # Подпись
     director_title = StringField(
         "Должность подписанта",
         default="Руководитель",
@@ -108,20 +121,30 @@ class CertificateBrandingForm(FlaskForm):
         "ФИО подписанта",
         validators=[Optional(), Length(max=255)],
     )
+
+    # Изображения
     logo_image = FileField(
-        "Логотип (PNG / JPG, опционально)",
+        "Логотип компании (Illuminart) — PNG / JPG",
+        validators=[
+            Optional(),
+            FileAllowed(["png", "jpg", "jpeg"], "Разрешены только изображения PNG/JPG"),
+        ],
+    )
+    partner_logo_image = FileField(
+        "Логотип партнёра (Caspian College) — PNG / JPG",
         validators=[
             Optional(),
             FileAllowed(["png", "jpg", "jpeg"], "Разрешены только изображения PNG/JPG"),
         ],
     )
     seal_image = FileField(
-        "Печать (PNG / JPG, опционально)",
+        "Печать компании — PNG / JPG",
         validators=[
             Optional(),
             FileAllowed(["png", "jpg", "jpeg"], "Разрешены только изображения PNG/JPG"),
         ],
     )
+
     submit = SubmitField("Сохранить настройки")
 
 
@@ -133,6 +156,8 @@ def certificate_branding():
     if form.validate_on_submit():
         branding.company_name = (form.company_name.data or "").strip()
         branding.company_subtitle = (form.company_subtitle.data or "").strip()
+        branding.partner_name = (form.partner_name.data or "").strip() or None
+        branding.partner_subtitle = (form.partner_subtitle.data or "").strip() or None
         branding.director_title = (form.director_title.data or "").strip()
         branding.director_name = (form.director_name.data or "").strip()
 
@@ -141,23 +166,21 @@ def certificate_branding():
         )
         os.makedirs(upload_root, exist_ok=True)
 
-        if form.logo_image.data:
-            logo_file = form.logo_image.data
-            name = secure_filename(logo_file.filename) or "logo.png"
+        def _save_image(field_data, prefix):
+            file = field_data
+            name = secure_filename(file.filename) or f"{prefix}.png"
             _, ext = os.path.splitext(name)
             ext = (ext or ".png").lower()
-            logo_filename = f"logo_{branding.id}_{uuid.uuid4().hex[:6]}{ext}"
-            logo_file.save(os.path.join(upload_root, logo_filename))
-            branding.logo_image_path = f"uploads/certificate_branding/{logo_filename}"
+            filename = f"{prefix}_{branding.id}_{uuid.uuid4().hex[:6]}{ext}"
+            file.save(os.path.join(upload_root, filename))
+            return f"uploads/certificate_branding/{filename}"
 
+        if form.logo_image.data:
+            branding.logo_image_path = _save_image(form.logo_image.data, "logo")
+        if form.partner_logo_image.data:
+            branding.partner_logo_image_path = _save_image(form.partner_logo_image.data, "partner_logo")
         if form.seal_image.data:
-            seal_file = form.seal_image.data
-            name = secure_filename(seal_file.filename) or "seal.png"
-            _, ext = os.path.splitext(name)
-            ext = (ext or ".png").lower()
-            seal_filename = f"seal_{branding.id}_{uuid.uuid4().hex[:6]}{ext}"
-            seal_file.save(os.path.join(upload_root, seal_filename))
-            branding.seal_image_path = f"uploads/certificate_branding/{seal_filename}"
+            branding.seal_image_path = _save_image(form.seal_image.data, "seal")
 
         db.session.commit()
         flash("Настройки сертификата успешно обновлены.", "success")

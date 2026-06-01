@@ -249,16 +249,27 @@ class CertificateBranding(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Название компании на сертификате
+    # === Основная компания (юридическое лицо, выдающее сертификат) ===
     company_name = db.Column(db.String(255), nullable=False, default='ИП "Illuminart"')
-    # Подзаголовок / описание
     company_subtitle = db.Column(
         db.String(255),
         nullable=True,
         default="Образовательная платформа Lerna",
     )
 
-    # Текст возле подписи
+    # === Партнёр (учебное заведение, на базе которого шло обучение) ===
+    partner_name = db.Column(
+        db.String(255),
+        nullable=True,
+        default="Caspian College",
+    )
+    partner_subtitle = db.Column(
+        db.String(255),
+        nullable=True,
+        default="Учебный партнёр",
+    )
+
+    # === Подпись ===
     director_title = db.Column(
         db.String(255),
         nullable=True,
@@ -269,9 +280,10 @@ class CertificateBranding(db.Model):
         nullable=True,
     )
 
-    # Картинки (логотип и печать) — храним относительные пути из /static
-    logo_image_path = db.Column(db.String(255), nullable=True)
-    seal_image_path = db.Column(db.String(255), nullable=True)
+    # === Изображения ===
+    logo_image_path = db.Column(db.String(255), nullable=True)         # основной (Illuminart)
+    partner_logo_image_path = db.Column(db.String(255), nullable=True) # партнёр (College)
+    seal_image_path = db.Column(db.String(255), nullable=True)         # печать (Illuminart)
 
     updated_at = db.Column(
         db.DateTime,
