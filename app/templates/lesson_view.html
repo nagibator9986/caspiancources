@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 {% block title %}{{ lesson.title }} · {{ course.title }}{% endblock %}
 
+{% macro youtube_embed(url) -%}
+  {# Пытаемся преобразовать обычные ссылки YouTube в embed-формат #}
+  {%- set u = url|string -%}
+  {%- if 'youtube.com/watch' in u and 'v=' in u -%}
+    {%- set vid = u.split('v=')[1].split('&')[0] -%}
+    https://www.youtube.com/embed/{{ vid }}
+  {%- elif 'youtu.be/' in u -%}
+    {%- set vid = u.split('youtu.be/')[1].split('?')[0] -%}
+    https://www.youtube.com/embed/{{ vid }}
+  {%- else -%}
+    {{ u }}
+  {%- endif -%}
+{%- endmacro %}
+
 {% block content %}
 <div class="space-y-6">
 
@@ -14,7 +28,7 @@
       {{ course.title }}
     </a>
     <span class="mx-1 text-slate-400">/</span>
-    <span class="text-slate-400">Урок</span>
+    <span class="text-slate-400">{{ lesson.title }}</span>
   </nav>
 
   <div class="grid gap-6 md:grid-cols-[minmax(0,2fr),minmax(260px,1fr)]">
@@ -22,7 +36,6 @@
     <!-- Левая колонка: контент урока -->
     <section class="space-y-5">
 
-      <!-- Заголовок урока -->
       <header class="rounded-3xl bg-white/80 p-5 shadow-sm ring-1 ring-slate-100">
         <p class="text-[11px] uppercase tracking-wide text-slate-400 mb-1">
           Урок курса «{{ course.title }}»
@@ -31,99 +44,108 @@
           {{ lesson.title }}
         </h1>
         {% if lesson.summary %}
-          <p class="text-sm text-slate-600">
-            {{ lesson.summary }}
+          <p class="text-sm text-slate-600">{{ lesson.summary }}</p>
+        {% endif %}
+        {% if is_completed %}
+          <p class="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-100">
+            ✅ Урок отмечен как пройденный
           </p>
         {% endif %}
       </header>
 
-      <!-- Контент урока: блоки -->
       <div class="rounded-3xl bg-white/90 p-5 shadow-sm ring-1 ring-slate-100">
         {% if blocks %}
           <div class="space-y-6">
 
             {% for block in blocks %}
               {% if block.block_type == 'text' %}
-                <!-- Текстовый блок -->
                 <article class="border-l-2 border-primary-100 pl-4">
                   {% if block.title %}
-                    <h2 class="mb-2 text-sm font-semibold text-slate-900">
-                      {{ block.title }}
-                    </h2>
+                    <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ block.title }}</h2>
                   {% endif %}
-                  <div class="text-[13px] leading-relaxed text-slate-700 space-y-3">
-                    {{ block.text_content | replace('\n\n', '</p><p>') | replace('\n', '<br>') | safe
-                    }}
+                  <div class="text-[13px] leading-relaxed text-slate-700 space-y-3 whitespace-pre-line">
+                    {{ block.text_content }}
                   </div>
                 </article>
 
+              {% elif block.block_type == 'quote' %}
+                <blockquote class="rounded-2xl bg-slate-50 border-l-4 border-amber-300 p-4 text-slate-700">
+                  {% if block.title %}
+                    <p class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-amber-600">
+                      {{ block.title }}
+                    </p>
+                  {% endif %}
+                  <p class="italic text-sm leading-relaxed whitespace-pre-line">
+                    {{ block.text_content }}
+                  </p>
+                </blockquote>
+
               {% elif block.block_type == 'video' %}
-                <!-- Видеоблок -->
                 <section class="space-y-2">
                   {% if block.title %}
-                    <h2 class="text-sm font-semibold text-slate-900">
-                      {{ block.title }}
-                    </h2>
+                    <h2 class="text-sm font-semibold text-slate-900">{{ block.title }}</h2>
                   {% endif %}
-                  {% if block.video_url %}
+                  {% if block.video_source == 'upload' and block.video_file_path %}
+                    <div class="overflow-hidden rounded-2xl bg-slate-900 shadow-inner">
+                      <video controls preload="metadata"
+                             class="w-full"
+                             src="{{ url_for('uploaded_file', filename=block.video_file_path) }}">
+                        Ваш браузер не поддерживает встроенное видео.
+                      </video>
+                    </div>
+                  {% elif block.video_url %}
                     <div class="overflow-hidden rounded-2xl bg-slate-900/90 shadow-inner">
                       <div class="relative w-full" style="padding-top: 56.25%;">
                         <iframe
-                          src="{{ block.video_url }}"
+                          src="{{ youtube_embed(block.video_url) }}"
                           class="absolute inset-0 h-full w-full border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowfullscreen
                           loading="lazy">
                         </iframe>
                       </div>
                     </div>
                   {% else %}
-                    <p class="text-xs text-slate-500">
-                      Видео не настроено для этого блока.
-                    </p>
+                    <p class="text-xs text-slate-500">Видео не настроено для этого блока.</p>
                   {% endif %}
                 </section>
 
-              {% elif block.block_type == 'image' and block.image_url %}
-                <!-- Изображение -->
+              {% elif block.block_type == 'image' and block.image_path %}
                 <figure class="space-y-2">
                   {% if block.title %}
-                    <figcaption class="text-xs font-medium text-slate-700">
-                      {{ block.title }}
-                    </figcaption>
+                    <figcaption class="text-xs font-medium text-slate-700">{{ block.title }}</figcaption>
                   {% endif %}
                   <div class="overflow-hidden rounded-2xl bg-slate-100">
-                    <img src="{{ block.image_url }}"
-                         alt="{{ block.title or lesson.title }}"
+                    <img src="{{ url_for('uploaded_file', filename=block.image_path) }}"
+                         alt="{{ block.alt_text or block.title or lesson.title }}"
                          class="w-full max-h-[480px] object-contain">
                   </div>
                 </figure>
 
-              {% elif block.block_type == 'file' and block.file_url %}
-                <!-- Прикреплённый файл -->
-                <div class="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-700 flex items-center justify-between">
+              {% elif block.block_type == 'file' and block.file_path %}
+                <div class="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-700 flex items-center justify-between gap-3">
                   <div>
                     <p class="font-medium text-slate-900">
-                      {{ block.title or 'Дополнительный материал' }}
+                      {{ block.title or block.file_name or 'Дополнительный материал' }}
                     </p>
                     <p class="text-[11px] text-slate-500 mt-0.5">
                       Файл для скачивания: презентация, методичка или другая инструкция.
                     </p>
                   </div>
-                  <a href="{{ block.file_url }}"
+                  <a href="{{ url_for('uploaded_file', filename=block.file_path) }}"
                      target="_blank"
-                     class="inline-flex items-center gap-1 rounded-full bg-primary-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-primary-700">
+                     download
+                     class="inline-flex items-center gap-1 rounded-full bg-primary-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-primary-700 whitespace-nowrap">
                     ⬇ Скачать
                   </a>
                 </div>
 
               {% else %}
-                <!-- На всякий случай для неизвестных типов -->
                 <div class="rounded-2xl bg-amber-50 px-4 py-3 text-[11px] text-amber-800">
-                  Неизвестный тип блока или не заполнены данные для блока «{{ block.title or 'Без названия' }}».
+                  Блок «{{ block.title or 'Без названия' }}» не содержит данных для отображения.
                 </div>
               {% endif %}
             {% endfor %}
-
           </div>
         {% else %}
           <p class="text-sm text-slate-500">
@@ -136,34 +158,38 @@
       <div class="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-slate-900 px-5 py-4 text-xs text-slate-100">
         <div class="max-w-md">
           <p class="font-medium text-slate-50 mb-1">
-            Отметить урок как пройденный
+            {% if is_completed %}Урок уже пройден{% else %}Отметить урок как пройденный{% endif %}
           </p>
           <p class="text-[11px] text-slate-300">
             Завершайте уроки по мере прохождения — это обновляет общий прогресс курса и открывает доступ к финальным тестам.
           </p>
         </div>
-        <form method="post" action="{{ url_for('courses.complete_lesson', lesson_id=lesson.id) }}">
-          {{ csrf_token() }}
-          <button
-            type="submit"
-            class="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-4 py-2 text-[11px] font-medium text-emerald-50 hover:bg-emerald-600">
-            ✅ Урок пройден
-          </button>
-        </form>
+        {% if not is_completed %}
+          <form method="post" action="{{ url_for('courses.complete_lesson', lesson_id=lesson.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button
+              type="submit"
+              class="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-4 py-2 text-[11px] font-medium text-emerald-50 hover:bg-emerald-600">
+              ✅ Урок пройден
+            </button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('courses.course_learn', slug=course.slug) }}"
+             class="inline-flex items-center gap-1 rounded-full bg-slate-700 px-4 py-2 text-[11px] font-medium text-white hover:bg-slate-600">
+            ← К программе курса
+          </a>
+        {% endif %}
       </div>
     </section>
 
     <!-- Правая колонка: прогресс и структура курса -->
     <aside class="space-y-4">
 
-      <!-- Карточка статуса по курсу -->
       <div class="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100 text-xs">
         <p class="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">
           Ваш прогресс по курсу
         </p>
-        <p class="mb-3 text-sm font-semibold text-slate-900">
-          {{ course.title }}
-        </p>
+        <p class="mb-3 text-sm font-semibold text-slate-900">{{ course.title }}</p>
 
         {% if user_course %}
           <div class="mb-3">
@@ -172,7 +198,7 @@
               <span>{{ user_course.progress_percent or 0 }}%</span>
             </div>
             <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
-              <div class="h-full rounded-full bg-primary-500"
+              <div class="h-full rounded-full bg-primary-500 transition-all"
                    style="width: {{ user_course.progress_percent or 0 }}%;"></div>
             </div>
           </div>
@@ -186,14 +212,9 @@
               <span class="font-medium text-slate-600">зачислены</span>
             {% endif %}
           </p>
-        {% else %}
-          <p class="text-[11px] text-slate-500">
-            Вы ещё не записаны на курс. Запишитесь, чтобы отслеживать прогресс и получать сертификат.
-          </p>
         {% endif %}
       </div>
 
-      <!-- Структура курса / навигация по урокам -->
       <div class="rounded-3xl bg-slate-900 p-4 text-xs text-slate-100">
         <p class="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-400">
           Структура курса
@@ -210,22 +231,18 @@
                     {% set is_current = (l.id == lesson.id) %}
                     <li>
                       <a href="{{ url_for('courses.lesson_view', slug=course.slug, lesson_id=l.id) }}"
-                         class="flex items-center gap-2 rounded-full px-2 py-1 text-[11px] 
+                         class="flex items-center gap-2 rounded-full px-2 py-1 text-[11px]
                                 {% if is_current %}bg-slate-800 text-white{% else %}text-slate-300 hover:bg-slate-800/70{% endif %}">
                         <span class="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-500 text-[9px]">
                           {{ loop.index }}
                         </span>
-                        <span class="line-clamp-1">
-                          {{ l.title }}
-                        </span>
+                        <span class="line-clamp-1">{{ l.title }}</span>
                       </a>
                     </li>
                   {% endfor %}
                 </ul>
               {% else %}
-                <p class="text-[11px] text-slate-500">
-                  Уроки для модуля ещё не добавлены.
-                </p>
+                <p class="text-[11px] text-slate-500">Уроки для модуля ещё не добавлены.</p>
               {% endif %}
             </div>
           {% endfor %}

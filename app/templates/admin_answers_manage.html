@@ -1,13 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Ответы на вопрос{% endblock %}
+{% block title %}Варианты ответа · {{ question.text|truncate(60) }}{% endblock %}
 {% block content %}
-<h1 class="mb-2 text-xl font-semibold text-slate-900">Ответы на вопрос</h1>
-<p class="mb-4 text-xs text-slate-500">
-  {{ question.text }}
-</p>
+<div class="mb-4">
+  <p class="text-[11px] uppercase tracking-wide text-slate-400">Вопрос</p>
+  <h1 class="text-xl font-semibold text-slate-900">Варианты ответа</h1>
+  <p class="mt-1 text-xs text-slate-600">{{ question.text }}</p>
+  <p class="mt-1 text-[11px] text-slate-500">
+    Тип: {% if question.type == 'single' %}один правильный{% else %}несколько правильных{% endif %}
+    · Можно указать до {{ max_options }} вариантов. Пустые варианты будут удалены.
+  </p>
+</div>
 
-<form method="post" class="space-y-4 max-w-lg rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-  {% for i in range(4) %}
+<form method="post" class="space-y-3 max-w-2xl rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {% for i in range(max_options) %}
     {% set opt = options[i] %}
     <div class="rounded-2xl bg-slate-50 p-3">
       <p class="mb-1 text-[11px] font-semibold text-slate-500">Вариант {{ i + 1 }}</p>
@@ -15,7 +22,8 @@
         type="text"
         name="opt_text_{{ i + 1 }}"
         value="{{ opt.text if opt else '' }}"
-        class="mb-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs">
+        placeholder="Текст варианта ответа..."
+        class="mb-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100">
       <label class="inline-flex items-center gap-2 text-[11px] text-slate-600">
         <input type="checkbox" name="opt_correct_{{ i + 1 }}" {% if opt and opt.is_correct %}checked{% endif %}>
         Правильный ответ
@@ -23,9 +31,15 @@
     </div>
   {% endfor %}
 
-  <button
-    class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
-    Сохранить варианты
-  </button>
+  <div class="flex flex-wrap items-center gap-2 pt-2">
+    <button
+      class="rounded-full bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700">
+      Сохранить варианты
+    </button>
+    <a href="{{ url_for('admin.questions_list', test_id=question.test_id) }}"
+       class="rounded-full border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50">
+      ← К списку вопросов
+    </a>
+  </div>
 </form>
 {% endblock %}

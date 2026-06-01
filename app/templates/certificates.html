@@ -24,7 +24,7 @@
             </p>
             <p class="text-[11px] text-slate-500 mt-0.5">
               Сертификат № {{ cert.certificate_code }}
-              · Выдан: {{ cert.created_at.strftime('%d.%m.%Y') if cert.created_at else 'дата не указана' }}
+              · Выдан: {{ cert.issue_date.strftime('%d.%m.%Y') if cert.issue_date else 'дата не указана' }}
             </p>
           </div>
           <div class="flex flex-wrap items-center gap-2">

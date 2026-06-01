@@ -8,7 +8,7 @@
   <nav class="text-[11px] text-slate-400 mb-1">
     <a href="{{ url_for('main.index') }}" class="hover:text-slate-600">Главная</a>
     <span class="mx-1">·</span>
-    <a href="{{ url_for('courses.courses') if false else '#' }}" class="hover:text-slate-600">Курсы</a>
+    <a href="{{ url_for('main.courses_list') }}" class="hover:text-slate-600">Курсы</a>
     <span class="mx-1">·</span>
     <span class="text-slate-600">{{ course.title }}</span>
   </nav>
@@ -136,13 +136,10 @@
             <h2 class="text-sm font-semibold text-slate-900">Что внутри курса</h2>
           </div>
           {% if course.modules %}
+            {% set ns = namespace(total=0) %}
+            {% for m in course.modules %}{% set ns.total = ns.total + (m.lessons|length) %}{% endfor %}
             <span class="rounded-full bg-slate-50 px-3 py-1 text-[11px] text-slate-500">
-              {{ course.modules|length }} модулей ·
-              примерно
-              {{
-                course.modules|map(attribute='lessons')|sum(attribute='|length') 
-                if false else ''
-              }}
+              {{ course.modules|length }} модулей · {{ ns.total }} уроков
             </span>
           {% endif %}
         </div>

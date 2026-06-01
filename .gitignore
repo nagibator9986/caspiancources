@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Flask / app
+instance/
+.webassets-cache
+
+# Local database (don't commit production / dev SQLite with user data)
+app.db
+*.sqlite
+*.sqlite3
+
+# Uploaded files (user content)
+app/static/uploads/
+!app/static/uploads/.gitkeep
+uploads/
+
+# Logs
+*.log
+logs/
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+
+# Coverage / tests
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.tox/
