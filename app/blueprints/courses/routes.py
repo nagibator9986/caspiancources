@@ -672,35 +672,37 @@ def certificate_pdf(cert_id):
     c.drawRightString(page_w - margin - 38 * mm, top_y - 8 * mm, partner_name)
 
     # ============ ЗАГОЛОВОК (по центру) ============
-    # Координаты считаем от низа страницы (origin reportlab — нижний-левый).
-    # page_h (A4 landscape) = 210 mm. Вертикальная сетка:
+    # Координаты от низа страницы. page_h = 210 mm. ВСЁ ВНУТРИ РАМОК:
+    # - outer border: 18-279mm x, 18-192mm y
+    # - inner border: 22-275mm x, 22-188mm y
+    # Все элементы остаются внутри inner border с запасом.
     #
-    #   161-176 mm — header (логотип, компания, № сертификата)
-    #   148-152 mm — мелкое «CERTIFICATE»
-    #   132-144 mm — большой заголовок «СЕРТИФИКАТ»
-    #   126-130 mm — орнаментальная линия с ромбиком
-    #   115-120 mm — «Настоящим подтверждается, что»
-    #   100-110 mm — имя
-    #    95-99  mm — подчёркивание под именем
-    #    83-88  mm — «успешно прошёл…»
-    #    73-80  mm — название курса
-    #    58-67  mm — описание (две строки)
-    #    38-54  mm — три info-блока
-    #    10-32  mm — подпись (слева) + печать (справа)
+    #   161-176 mm — header (логотипы, компания, № сертификата)
+    #   154-158 mm — мелкое «CERTIFICATE»
+    #   139-150 mm — большой заголовок «СЕРТИФИКАТ»
+    #   132-136 mm — орнаментальная линия с ромбиком
+    #   122-126 mm — «Настоящим подтверждается, что»
+    #   107-115 mm — имя
+    #   102-106 mm — подчёркивание под именем
+    #    91-96  mm — «успешно прошёл…»
+    #    81-88  mm — название курса
+    #    66-75  mm — описание (две строки)
+    #    50-64  mm — блок «КОД ПРОВЕРКИ»
+    #    25-46  mm — подпись (слева) + печать (справа) — ВНУТРИ рамок
     center_x = page_w / 2
 
     c.setFont(font_regular, 8)
     c.setFillColor(colors.HexColor("#C2782C"))
-    c.drawCentredString(center_x, 150 * mm, "C E R T I F I C A T E")
+    c.drawCentredString(center_x, 156 * mm, "C E R T I F I C A T E")
 
     c.setFont(font_bold, 30)
     c.setFillColor(colors.HexColor("#1F2937"))
-    c.drawCentredString(center_x, 134 * mm, "СЕРТИФИКАТ")
+    c.drawCentredString(center_x, 141 * mm, "СЕРТИФИКАТ")
 
     # Тонкая разделительная линия с ромбиком
     c.setStrokeColor(colors.HexColor("#E2A55F"))
     c.setLineWidth(0.8)
-    line_y = 127 * mm
+    line_y = 134 * mm
     c.line(center_x - 50 * mm, line_y, center_x - 8 * mm, line_y)
     c.line(center_x + 8 * mm, line_y, center_x + 50 * mm, line_y)
     c.saveState()
@@ -713,7 +715,7 @@ def certificate_pdf(cert_id):
     # ============ «НАСТОЯЩИМ ПОДТВЕРЖДАЕТСЯ» + ИМЯ ============
     c.setFont(font_regular, 10)
     c.setFillColor(colors.HexColor("#64748B"))
-    c.drawCentredString(center_x, 118 * mm, "Настоящим подтверждается, что")
+    c.drawCentredString(center_x, 124 * mm, "Настоящим подтверждается, что")
 
     owner_name = (
         cert.user.full_name
@@ -725,20 +727,20 @@ def certificate_pdf(cert_id):
         name_size -= 1
     c.setFont(font_bold, name_size)
     c.setFillColor(colors.HexColor("#1F2937"))
-    c.drawCentredString(center_x, 103 * mm, owner_name)
+    c.drawCentredString(center_x, 109 * mm, owner_name)
 
     # Подчёркивание под именем
     name_width = pdfmetrics.stringWidth(owner_name, font_bold, name_size)
     underline_w = min(name_width + 30, page_w - 2 * margin - 60)
     c.setStrokeColor(colors.HexColor("#E2A55F"))
     c.setLineWidth(0.8)
-    c.line(center_x - underline_w / 2, 98 * mm,
-           center_x + underline_w / 2, 98 * mm)
+    c.line(center_x - underline_w / 2, 104 * mm,
+           center_x + underline_w / 2, 104 * mm)
 
     # ============ ТЕКСТ ПРО КУРС ============
     c.setFont(font_regular, 11)
     c.setFillColor(colors.HexColor("#374151"))
-    c.drawCentredString(center_x, 87 * mm,
+    c.drawCentredString(center_x, 93 * mm,
                         "успешно прошёл(а) обучение по образовательной программе")
 
     course_title = f"«{cert.course.title}»"
@@ -747,16 +749,16 @@ def certificate_pdf(cert_id):
         title_size -= 1
     c.setFont(font_bold, title_size)
     c.setFillColor(colors.HexColor("#1F2937"))
-    c.drawCentredString(center_x, 77 * mm, course_title)
+    c.drawCentredString(center_x, 83 * mm, course_title)
 
     c.setFont(font_regular, 9.5)
     c.setFillColor(colors.HexColor("#475569"))
     c.drawCentredString(
-        center_x, 66 * mm,
+        center_x, 72 * mm,
         "освоил(а) ключевые темы курса, прошёл(а) тематические модули и успешно сдал(а) итоговый тест,",
     )
     c.drawCentredString(
-        center_x, 60 * mm,
+        center_x, 66 * mm,
         "подтвердив требуемый уровень усвоения учебного материала.",
     )
 
@@ -769,7 +771,7 @@ def certificate_pdf(cert_id):
     code_block_w = max(pdfmetrics.stringWidth(code_text, font_bold, code_size) + 22 * mm, 70 * mm)
     code_block_h = 14 * mm
     code_block_x = (page_w - code_block_w) / 2
-    code_block_y = 40 * mm
+    code_block_y = 50 * mm
 
     c.setFillColor(colors.HexColor("#FFF3E0"))
     c.roundRect(code_block_x, code_block_y, code_block_w, code_block_h, 6, stroke=0, fill=1)
@@ -785,10 +787,11 @@ def certificate_pdf(cert_id):
     c.setFont(font_bold, code_size)
     c.drawCentredString(page_w / 2, code_block_y + 4 * mm, code_text)
 
-    # ============ ПОДПИСЬ И ПЕЧАТЬ ============
-    sign_y = 8 * mm  # базовая координата для нижнего ряда
+    # ============ ПОДПИСЬ И ПЕЧАТЬ — внутри рамок ============
+    # inner_margin = 22mm (нижняя граница). Все элементы выше неё.
+    sign_y = 22 * mm  # подпись начинается с y=25mm (caption) и поднимается до y=40mm (label)
 
-    # Подпись (слева)
+    # Подпись (слева) — фиксированная длина линии 55mm
     c.setFont(font_regular, 7.5)
     c.setFillColor(colors.HexColor("#64748B"))
     c.drawString(margin + 16 * mm, sign_y + 18 * mm,
@@ -796,7 +799,7 @@ def certificate_pdf(cert_id):
 
     c.setStrokeColor(colors.HexColor("#94A3B8"))
     c.setLineWidth(0.8)
-    c.line(margin + 16 * mm, sign_y + 13 * mm, margin + 16 * mm + 60 * mm, sign_y + 13 * mm)
+    c.line(margin + 16 * mm, sign_y + 13 * mm, margin + 16 * mm + 55 * mm, sign_y + 13 * mm)
 
     c.setFont(font_bold, 10)
     c.setFillColor(colors.HexColor("#1F2937"))
@@ -808,11 +811,11 @@ def certificate_pdf(cert_id):
     c.drawString(margin + 16 * mm, sign_y + 3 * mm,
                  "(подпись и расшифровка)")
 
-    # Печать (справа)
+    # Печать (справа) — диаметр 20mm, центр 36mm от низа, сдвинута к центру
     seal_path = _branding_image_path(branding.seal_image_path)
-    seal_cx = page_w - margin - 26 * mm
+    seal_cx = page_w - margin - 32 * mm
     seal_cy = sign_y + 14 * mm
-    radius = 11 * mm
+    radius = 10 * mm
 
     if seal_path:
         try:
