@@ -12,6 +12,7 @@ from flask import (
     request,
     send_file,
     current_app,
+    make_response,
 )
 from flask_login import login_required, current_user
 
@@ -472,11 +473,17 @@ def certificate_view(cert_id):
 
     branding = CertificateBranding.get_singleton()
 
-    return render_template(
+    response = make_response(render_template(
         "certificate_view.html",
         certificate=certificate,
         branding=branding,
-    )
+    ))
+    # Запрещаем кэширование, чтобы пользователь всегда видел актуальный шаблон
+    # (без необходимости hard-refresh после правок CSS).
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 # --------------------------

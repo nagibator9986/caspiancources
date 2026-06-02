@@ -430,18 +430,25 @@
         <!-- Распорка -->
         <div></div>
 
-        <!-- Подпись + Печать -->
-        <div class="foot">
-          <div class="sign-col">
-            <div class="label">{{ branding.director_title if branding and branding.director_title else 'Руководитель' }}</div>
-            <div class="sig-line"></div>
-            <div class="who">{{ branding.director_name if branding and branding.director_name else 'Ответственное лицо' }}</div>
-            <div class="caption">(подпись и расшифровка)</div>
+        <!-- Подпись + Печать — inline-стили для максимальной устойчивости -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:40px; width:100%;">
+          <div style="width:300px; flex:0 0 auto;">
+            <div style="font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#94A3B8; font-weight:500;">
+              {{ branding.director_title if branding and branding.director_title else 'Руководитель' }}
+            </div>
+            <div style="width:210px; height:1px; margin:10px 0; background:linear-gradient(90deg, transparent, rgba(100,116,139,0.7), transparent);"></div>
+            <div style="font-size:15px; font-weight:600; color:#0F172A;">
+              {{ branding.director_name if branding and branding.director_name else 'Ответственное лицо' }}
+            </div>
+            <div style="font-size:10px; color:#94A3B8; margin-top:4px;">
+              (подпись и расшифровка)
+            </div>
           </div>
-          <div class="seal-col">
+          <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:flex-end;">
             {% if branding and branding.seal_image_path %}
-              <div class="seal-img">
-                <img src="{{ url_for('static', filename=branding.seal_image_path) }}" alt="Печать">
+              <div style="width:130px; height:130px; transform:rotate(-6deg);">
+                <img src="{{ url_for('static', filename=branding.seal_image_path) }}" alt="Печать"
+                     style="width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.08));">
               </div>
             {% else %}
               <div class="seal-stamp">
