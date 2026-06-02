@@ -524,12 +524,18 @@ def _branding_image_path(rel_path):
 @courses_bp.route("/certificate/<int:cert_id>/pdf")
 @login_required
 def certificate_pdf(cert_id):
-    """Генерирует красивый PDF-сертификат с учётом брендинга и поддержкой кириллицы."""
+    """
+    Генерирует красивый PDF-сертификат с учётом брендинга и поддержкой кириллицы.
+    По умолчанию отдаётся как файл-вложение (скачать).
+    При `?inline=1` отдаётся inline — открывается во встроенном PDF-viewer'е браузера
+    (используется кнопкой «Печать»: рендер PDF идентичен, печатать гарантированно ровно).
+    """
     cert = Certificate.query.get_or_404(cert_id)
 
     if cert.user_id != current_user.id and not current_user.is_admin():
         abort(403)
 
+    inline_mode = request.args.get("inline") == "1"
     branding = CertificateBranding.get_singleton()
     font_regular, font_bold = _register_pdf_fonts()
 
@@ -821,7 +827,7 @@ def certificate_pdf(cert_id):
     filename = f"certificate_{cert.certificate_code}.pdf"
     return send_file(
         buffer,
-        as_attachment=True,
+        as_attachment=not inline_mode,
         download_name=filename,
         mimetype="application/pdf",
     )

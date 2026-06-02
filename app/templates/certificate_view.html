@@ -60,7 +60,7 @@
     transform: rotate(15deg);
   }
 
-  /* Тонкие декоративные уголки */
+  /* Тонкие декоративные уголки — отступаем от края, чтобы принтер не отрезал */
   .corner-deco {
     position: absolute;
     width: 70px;
@@ -69,12 +69,13 @@
     z-index: 2;
     pointer-events: none;
   }
-  .corner-deco.tl { top: 16px; left: 16px; border-right: none; border-bottom: none; border-top-left-radius: 16px; }
-  .corner-deco.tr { top: 16px; right: 16px; border-left: none; border-bottom: none; border-top-right-radius: 16px; }
-  .corner-deco.bl { bottom: 16px; left: 16px; border-right: none; border-top: none; border-bottom-left-radius: 16px; }
-  .corner-deco.br { bottom: 16px; right: 16px; border-left: none; border-top: none; border-bottom-right-radius: 16px; }
+  .corner-deco.tl { top: 10mm; left: 10mm; border-right: none; border-bottom: none; border-top-left-radius: 14px; }
+  .corner-deco.tr { top: 10mm; right: 10mm; border-left: none; border-bottom: none; border-top-right-radius: 14px; }
+  .corner-deco.bl { bottom: 10mm; left: 10mm; border-right: none; border-top: none; border-bottom-left-radius: 14px; }
+  .corner-deco.br { bottom: 10mm; right: 10mm; border-left: none; border-top: none; border-bottom-right-radius: 14px; }
 
-  .cert-inner { position: relative; z-index: 1; padding: 18mm 22mm; }
+  /* Контент с безопасными полями для принтера (обычно режет 5-10 мм по краям). */
+  .cert-inner { position: relative; z-index: 1; padding: 16mm 20mm; }
 
   .cert-name {
     font-family: 'Cormorant Garamond', 'Times New Roman', serif;
@@ -206,11 +207,13 @@
          class="inline-flex items-center gap-1 rounded-full bg-orange-500 px-4 py-1.5 text-[11px] font-medium text-white shadow-sm hover:bg-orange-600">
         ⬇ Скачать PDF
       </a>
-      <button type="button"
-              onclick="window.print()"
-              class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50">
-        🖨 Печать
-      </button>
+      <a href="{{ url_for('courses.certificate_pdf', cert_id=certificate.id) }}?inline=1"
+         target="_blank"
+         rel="noopener"
+         title="Откроется PDF — оттуда печатайте: гарантированно ровно, без обрезки"
+         class="inline-flex items-center gap-1 rounded-full bg-slate-900 px-4 py-1.5 text-[11px] font-medium text-white hover:bg-slate-800">
+        🖨 Печать (PDF)
+      </a>
     </div>
   </div>
 
