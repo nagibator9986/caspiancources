@@ -5,38 +5,31 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
-  /* ====== ЭКРАННЫЙ ВИД ====== */
-  .cert-wrap {
+  /* ====== ЭКРАН ====== */
+  .cert-stage {
     background:
       radial-gradient(ellipse at 20% 0%, rgba(251, 191, 36, 0.16), transparent 55%),
       radial-gradient(ellipse at 90% 100%, rgba(249, 115, 22, 0.16), transparent 60%),
       linear-gradient(135deg, #fff7ed 0%, #ffe6cc 100%);
+    padding: 1rem;
+    border-radius: 1.5rem;
   }
 
   .cert-card {
-    /* Жёсткие пропорции landscape A4 (297 × 210 мм). На экране — масштабируем. */
-    width: 297mm;
-    min-height: 210mm;
+    /* На экране: контейнер 100% ширины, но не больше 1200px; пропорции landscape A4 */
+    width: 100%;
+    max-width: 1200px;
+    aspect-ratio: 297 / 210;
     margin: 0 auto;
     position: relative;
     overflow: hidden;
     background: linear-gradient(180deg, #ffffff 0%, #fffaf3 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(251, 146, 60, 0.35);
     box-shadow: 0 22px 50px -28px rgba(124, 45, 18, 0.45);
-    transform-origin: top center;
   }
 
-  /* На экране ужимаем под контейнер */
-  @media screen and (max-width: 1380px) {
-    .cert-card { transform: scale(0.88); margin-bottom: -10%; }
-  }
-  @media screen and (max-width: 900px) {
-    .cert-card { transform: scale(0.55); margin-bottom: -45%; }
-  }
-  @media screen and (max-width: 600px) {
-    .cert-card { transform: scale(0.35); margin-bottom: -65%; }
-  }
-
-  /* Декоративные «акварельные» круги */
+  /* Декоративные акварельные пятна */
   .cert-card::before,
   .cert-card::after {
     content: "";
@@ -46,149 +39,279 @@
     z-index: 0;
   }
   .cert-card::before {
-    width: 320px; height: 160px;
-    top: -80px; left: -100px;
+    width: 28%; height: 26%;
+    top: -6%; left: -8%;
     background: linear-gradient(135deg, #f97316, #fdba74);
-    opacity: 0.30;
+    opacity: 0.28;
     transform: rotate(-10deg);
   }
   .cert-card::after {
-    width: 360px; height: 180px;
-    bottom: -100px; right: -110px;
+    width: 32%; height: 30%;
+    bottom: -8%; right: -8%;
     background: linear-gradient(135deg, #fed7aa, #fb923c);
     opacity: 0.30;
     transform: rotate(15deg);
   }
 
-  /* Тонкие декоративные уголки — отступаем от края, чтобы принтер не отрезал */
-  .corner-deco {
+  /* Декоративные уголки — отступаем 5% от края, чтобы принтер не отрезал */
+  .corner {
     position: absolute;
-    width: 70px;
-    height: 70px;
+    width: 5.5%;
+    aspect-ratio: 1;
     border: 1.5px solid rgba(194, 120, 44, 0.55);
     z-index: 2;
     pointer-events: none;
   }
-  .corner-deco.tl { top: 10mm; left: 10mm; border-right: none; border-bottom: none; border-top-left-radius: 14px; }
-  .corner-deco.tr { top: 10mm; right: 10mm; border-left: none; border-bottom: none; border-top-right-radius: 14px; }
-  .corner-deco.bl { bottom: 10mm; left: 10mm; border-right: none; border-top: none; border-bottom-left-radius: 14px; }
-  .corner-deco.br { bottom: 10mm; right: 10mm; border-left: none; border-top: none; border-bottom-right-radius: 14px; }
+  .corner.tl { top: 3.5%; left: 2.5%; border-right: none; border-bottom: none; border-top-left-radius: 14px; }
+  .corner.tr { top: 3.5%; right: 2.5%; border-left: none; border-bottom: none; border-top-right-radius: 14px; }
+  .corner.bl { bottom: 3.5%; left: 2.5%; border-right: none; border-top: none; border-bottom-left-radius: 14px; }
+  .corner.br { bottom: 3.5%; right: 2.5%; border-left: none; border-top: none; border-bottom-right-radius: 14px; }
 
-  /* Контент с безопасными полями для принтера (обычно режет 5-10 мм по краям). */
-  .cert-inner { position: relative; z-index: 1; padding: 16mm 20mm; }
-
-  .cert-name {
-    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-    letter-spacing: 0.02em;
-    font-weight: 600;
-  }
-  .cert-title {
-    font-family: 'Cormorant Garamond', serif;
-    letter-spacing: 0.22em;
-    font-weight: 600;
-  }
-
-  .ornament-line {
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-  }
-  .ornament-line .line {
-    flex: 1; max-width: 130px; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(194, 120, 44, 0.65), transparent);
-  }
-  .ornament-line .diamond {
-    width: 9px; height: 9px;
-    background: #e2a55f;
-    transform: rotate(45deg);
-    box-shadow: 0 0 0 3px rgba(226, 165, 95, 0.18);
+  /* Внутренний контейнер — Grid с фиксированными строками */
+  .cert-inner {
+    position: absolute;
+    inset: 7.5% 8%;
+    z-index: 1;
+    display: grid;
+    grid-template-rows:
+      auto         /* шапка */
+      auto         /* заголовок СЕРТИФИКАТ */
+      auto         /* имя */
+      auto         /* текст */
+      auto         /* код проверки */
+      1fr          /* распорка */
+      auto;        /* подпись + печать */
+    row-gap: 2.5%;
   }
 
-  .seal-stamp {
-    position: relative;
-    width: 140px; height: 140px;
-    border-radius: 9999px;
+  /* ===== Шапка ===== */
+  .head {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    column-gap: 4%;
+  }
+  .head-left, .head-right {
+    display: flex; gap: 0.7rem;
+    min-width: 0;
+  }
+  .head-right { justify-content: flex-end; text-align: right; }
+  .head-left .logo-box,
+  .head-right .logo-box {
+    flex: 0 0 auto;
+    width: 9%;
+    min-width: 56px;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid;
     display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .head-left .logo-box { border-color: rgba(251, 146, 60, 0.45); }
+  .head-right .logo-box { border-color: rgba(125, 211, 252, 0.6); }
+  .head-left .logo-box img,
+  .head-right .logo-box img { max-width: 86%; max-height: 86%; object-fit: contain; }
+  .head-text { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+  .head-text .label {
+    font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: #C2782C;
+  }
+  .head-right .head-text .label { color: #0284C7; }
+  .head-text .name { font-size: 1rem; font-weight: 600; color: #0F172A; line-height: 1.2; margin-top: 0.25rem; }
+  .head-text .sub  { font-size: 0.7rem; color: #64748B; margin-top: 0.15rem; }
+
+  .head-badge {
+    text-align: center;
+    padding-top: 0.5rem;
+  }
+  .head-badge .pill {
+    display: inline-block;
+    background: #0F172A;
+    color: #F8FAFC;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.9rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .head-badge .meta {
+    margin-top: 0.45rem;
+    font-size: 0.7rem;
+    color: #64748B;
+  }
+  .head-badge .meta strong { color: #1F2937; font-weight: 600; }
+
+  /* ===== Заголовок ===== */
+  .title-block { text-align: center; }
+  .title-block .pre {
+    font-size: 0.7rem; letter-spacing: 0.42em; text-transform: uppercase; color: #EA580C;
+  }
+  .title-block .big {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: #0F172A;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    line-height: 1;
+    margin-top: 0.3rem;
+  }
+  .ornament {
+    margin-top: 0.7rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  }
+  .ornament .line {
+    flex: 0 1 16%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(194,120,44,0.65), transparent);
+  }
+  .ornament .diamond {
+    width: 9px; height: 9px;
+    background: #E2A55F;
+    transform: rotate(45deg);
+    box-shadow: 0 0 0 3px rgba(226,165,95,0.18);
+  }
+
+  /* ===== Имя ===== */
+  .name-block { text-align: center; }
+  .name-block .pre {
+    font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: #64748B;
+  }
+  .name-block .name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    color: #0F172A;
+    margin-top: 0.6rem;
+    display: inline-block;
+    border-bottom: 2px solid #FDBA74;
+    padding-bottom: 0.35rem;
+  }
+
+  /* ===== Описание ===== */
+  .desc-block { text-align: center; color: #475569; max-width: 78%; margin: 0 auto; }
+  .desc-block .intro { font-size: 0.85rem; }
+  .desc-block .course-title {
+    font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+    font-weight: 600;
+    color: #0F172A;
+    margin: 0.5rem 0;
+  }
+  .desc-block .body { font-size: 0.78rem; line-height: 1.6; }
+
+  /* ===== Код проверки ===== */
+  .code-block {
+    justify-self: center;
+    background: rgba(255, 243, 224, 0.85);
+    border: 1px solid rgba(244, 197, 138, 0.7);
+    border-radius: 14px;
+    padding: 0.55rem 1.5rem;
+    text-align: center;
+  }
+  .code-block .label {
+    font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: #C2782C;
+  }
+  .code-block .code {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+  }
+
+  /* ===== Подпись + Печать (грид!) ===== */
+  .foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    column-gap: 4%;
+  }
+  .sign-col {
+    display: flex; flex-direction: column;
+    max-width: 320px;
+  }
+  .sign-col .label {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #94A3B8;
+  }
+  .sign-col .sig-line {
+    width: 220px;
+    max-width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(100,116,139,0.7), transparent);
+    margin: 0.5rem 0;
+  }
+  .sign-col .who {
+    font-size: 0.95rem; font-weight: 600; color: #0F172A;
+  }
+  .sign-col .caption {
+    font-size: 0.62rem; color: #94A3B8; margin-top: 0.2rem;
+  }
+
+  .seal-col { display: flex; align-items: center; justify-content: flex-end; }
+  .seal-img { width: 130px; height: 130px; transform: rotate(-6deg); }
+  .seal-img img {
+    width: 100%; height: 100%; object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+  }
+  .seal-stamp {
+    width: 130px; height: 130px;
+    border-radius: 9999px;
     transform: rotate(-8deg);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
   }
   .seal-stamp::before {
     content: ""; position: absolute; inset: 0;
     border-radius: 9999px;
     border: 3px solid rgba(234, 88, 12, 0.85);
-    box-shadow:
-      inset 0 0 0 6px rgba(255, 247, 237, 0.6),
-      inset 0 0 0 7px rgba(234, 88, 12, 0.35);
+    box-shadow: inset 0 0 0 6px rgba(255, 247, 237, 0.6), inset 0 0 0 7px rgba(234, 88, 12, 0.35);
   }
   .seal-stamp::after {
     content: ""; position: absolute; inset: 14px;
     border-radius: 9999px;
     border: 1px dashed rgba(234, 88, 12, 0.6);
   }
-  .seal-stamp .seal-content { position: relative; text-align: center; z-index: 2; padding: 0 8px; }
-
-  .seal-image-wrap {
-    width: 140px; height: 140px;
-    transform: rotate(-6deg);
-    display: flex; align-items: center; justify-content: center;
+  .seal-stamp .content { position: relative; z-index: 2; text-align: center; padding: 0 8px; }
+  .seal-stamp .content .top {
+    font-size: 0.55rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #9A3412;
   }
-  .seal-image-wrap img {
-    max-width: 100%; max-height: 100%; object-fit: contain;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+  .seal-stamp .content .div { width: 22px; height: 1px; background: #FB923C; margin: 4px auto; }
+  .seal-stamp .content .bot {
+    font-size: 0.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: #C2410C;
   }
 
-  /* ====== ПЕЧАТЬ (PRINT) ====== */
-  @page {
-    size: A4 landscape;
-    margin: 0;
-  }
-
+  /* ===== ПЕЧАТЬ (Ctrl+P из браузера) ===== */
+  @page { size: A4 landscape; margin: 0; }
   @media print {
     html, body {
-      margin: 0 !important;
-      padding: 0 !important;
+      margin: 0 !important; padding: 0 !important;
       background: white !important;
-      width: 297mm; height: 210mm;
+      width: 297mm !important; height: 210mm !important;
     }
-    /* Прячем элементы интерфейса */
-    .no-print,
-    header[class*="border-b"],
-    footer[class*="border-t"],
-    nav,
-    .container { display: none !important; }
-    main, body > div, main > div { padding: 0 !important; margin: 0 !important; max-width: none !important; }
-
-    /* Полностью раскрашиваем (фон, тени, градиенты) — иначе принтер срежет цвета */
-    * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      color-adjust: exact !important;
-    }
-
-    .cert-wrap {
-      background: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      width: 297mm !important;
-      height: 210mm !important;
-      display: block !important;
-    }
-
+    .no-print, header[class*="border-b"], footer[class*="border-t"], nav { display: none !important; }
+    main, main > div, body > div { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+    .cert-stage { background: none !important; padding: 0 !important; border-radius: 0 !important; }
     .cert-card {
-      width: 297mm !important;
-      height: 210mm !important;
-      min-height: 210mm !important;
+      width: 297mm !important; height: 210mm !important;
+      max-width: none !important;
+      aspect-ratio: auto !important;
       margin: 0 !important;
-      box-shadow: none !important;
-      transform: none !important;
       border-radius: 0 !important;
-      page-break-inside: avoid;
-      page-break-after: avoid;
-      break-inside: avoid;
+      box-shadow: none !important;
+      page-break-inside: avoid; break-inside: avoid;
     }
   }
 </style>
 
 <div class="flex flex-col gap-6">
 
-  <!-- Верхняя панель управления (не печатается) -->
+  <!-- Верхняя панель (не печатается) -->
   <div class="no-print flex flex-wrap items-center justify-between gap-3">
     <div>
       <p class="text-[11px] uppercase tracking-wide text-slate-400">Сертификат</p>
@@ -201,114 +324,83 @@
     <div class="flex flex-wrap items-center gap-2 text-xs">
       <a href="{{ url_for('courses.certificates') }}"
          class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50">
-        ← К списку сертификатов
+        ← К списку
       </a>
       <a href="{{ url_for('courses.certificate_pdf', cert_id=certificate.id) }}"
          class="inline-flex items-center gap-1 rounded-full bg-orange-500 px-4 py-1.5 text-[11px] font-medium text-white shadow-sm hover:bg-orange-600">
         ⬇ Скачать PDF
       </a>
       <a href="{{ url_for('courses.certificate_pdf', cert_id=certificate.id) }}?inline=1"
-         target="_blank"
-         rel="noopener"
-         title="Откроется PDF — оттуда печатайте: гарантированно ровно, без обрезки"
+         target="_blank" rel="noopener"
          class="inline-flex items-center gap-1 rounded-full bg-slate-900 px-4 py-1.5 text-[11px] font-medium text-white hover:bg-slate-800">
         🖨 Печать (PDF)
       </a>
     </div>
   </div>
 
-  <!-- ===== САМ СЕРТИФИКАТ ===== -->
-  <div class="cert-wrap rounded-3xl p-4 md:p-8">
-    <div class="cert-card rounded-[32px] border border-orange-200/80">
+  <!-- ===== СЕРТИФИКАТ ===== -->
+  <div class="cert-stage">
+    <div class="cert-card">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
 
-      <span class="corner-deco tl"></span>
-      <span class="corner-deco tr"></span>
-      <span class="corner-deco bl"></span>
-      <span class="corner-deco br"></span>
+      <div class="cert-inner">
 
-      <div class="cert-inner flex flex-col gap-6">
-
-        <!-- ===== ШАПКА: ДВА ЛОГОТИПА ===== -->
-        <div class="grid grid-cols-3 items-start gap-6">
-
-          <!-- Логотип основной компании (Illuminart) -->
-          <div class="flex items-center gap-3">
+        <!-- Шапка -->
+        <div class="head">
+          <div class="head-left">
             {% if branding and branding.logo_image_path %}
-              <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-orange-200 bg-white shadow-sm shrink-0">
-                <img src="{{ url_for('static', filename=branding.logo_image_path) }}"
-                     alt="Логотип компании"
-                     class="max-h-[72px] max-w-full object-contain">
+              <div class="logo-box">
+                <img src="{{ url_for('static', filename=branding.logo_image_path) }}" alt="Логотип компании">
               </div>
             {% endif %}
-            <div>
-              <p class="text-[10px] uppercase tracking-[0.22em] text-orange-500">
-                Официальный документ
-              </p>
-              <p class="mt-1 text-base font-semibold text-slate-900">
-                {{ branding.company_name if branding and branding.company_name else 'ИП "Illuminart"' }}
-              </p>
+            <div class="head-text">
+              <div class="label">Официальный документ</div>
+              <div class="name">{{ branding.company_name if branding and branding.company_name else 'ИП "Illuminart"' }}</div>
               {% if branding and branding.company_subtitle %}
-                <p class="text-[11px] text-slate-500">{{ branding.company_subtitle }}</p>
+                <div class="sub">{{ branding.company_subtitle }}</div>
               {% endif %}
             </div>
           </div>
 
-          <!-- Центр: номер сертификата -->
-          <div class="text-center pt-2">
-            <span class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-slate-50">
-              Сертификат о прохождении курса
-            </span>
-            <p class="mt-2 text-[11px] text-slate-500">
-              № <span class="font-semibold text-slate-700">{{ certificate.certificate_code }}</span>
-            </p>
+          <div class="head-badge">
+            <span class="pill">Сертификат о прохождении курса</span>
+            <div class="meta">
+              № <strong>{{ certificate.certificate_code }}</strong>
+              · {{ certificate.issue_date.strftime('%d.%m.%Y') if certificate.issue_date else '—' }}
+            </div>
           </div>
 
-          <!-- Логотип партнёра (Caspian College) -->
-          <div class="flex items-center justify-end gap-3 text-right">
-            <div>
-              <p class="text-[10px] uppercase tracking-[0.22em] text-sky-600">
-                {{ branding.partner_subtitle if branding and branding.partner_subtitle else 'Учебный партнёр' }}
-              </p>
-              <p class="mt-1 text-base font-semibold text-slate-900">
-                {{ branding.partner_name if branding and branding.partner_name else 'Caspian College' }}
-              </p>
-              <p class="text-[11px] text-slate-500">
-                {{ certificate.issue_date.strftime('%d.%m.%Y') if certificate.issue_date else '—' }}
-              </p>
+          <div class="head-right">
+            <div class="head-text">
+              <div class="label">{{ branding.partner_subtitle if branding and branding.partner_subtitle else 'Учебный партнёр' }}</div>
+              <div class="name">{{ branding.partner_name if branding and branding.partner_name else 'Caspian College' }}</div>
             </div>
             {% if branding and branding.partner_logo_image_path %}
-              <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-sky-200 bg-white shadow-sm shrink-0">
-                <img src="{{ url_for('static', filename=branding.partner_logo_image_path) }}"
-                     alt="Логотип партнёра"
-                     class="max-h-[72px] max-w-full object-contain">
-              </div>
-            {% else %}
-              <div class="flex h-20 w-20 items-center justify-center rounded-2xl border-2 border-sky-300 bg-sky-50 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-600 shrink-0">
-                LOGO
+              <div class="logo-box">
+                <img src="{{ url_for('static', filename=branding.partner_logo_image_path) }}" alt="Логотип партнёра">
               </div>
             {% endif %}
           </div>
         </div>
 
-        <!-- ===== БОЛЬШОЙ ЗАГОЛОВОК ===== -->
-        <div class="text-center mt-2">
-          <p class="text-[11px] uppercase text-orange-500" style="letter-spacing:0.42em;">
-            C E R T I F I C A T E
-          </p>
-          <h2 class="cert-title mt-2 text-5xl text-slate-900">СЕРТИФИКАТ</h2>
-          <div class="ornament-line mt-3">
+        <!-- Заголовок -->
+        <div class="title-block">
+          <div class="pre">C E R T I F I C A T E</div>
+          <div class="big">СЕРТИФИКАТ</div>
+          <div class="ornament">
             <span class="line"></span>
             <span class="diamond"></span>
             <span class="line"></span>
           </div>
         </div>
 
-        <!-- ===== ИМЯ ===== -->
-        <div class="text-center mt-1">
-          <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">
-            Настоящим подтверждается, что
-          </p>
-          <p class="cert-name mt-3 inline-block border-b-2 border-orange-300 pb-2 text-4xl text-slate-900">
+        <!-- Имя -->
+        <div class="name-block">
+          <div class="pre">Настоящим подтверждается, что</div>
+          <div class="name">
             {% if certificate.user and certificate.user.full_name %}
               {{ certificate.user.full_name }}
             {% elif certificate.user %}
@@ -316,72 +408,51 @@
             {% else %}
               Участник курса
             {% endif %}
-          </p>
-        </div>
-
-        <!-- ===== ТЕКСТ ===== -->
-        <div class="mx-auto max-w-3xl text-center text-sm leading-7 text-slate-600">
-          <p>
-            успешно прошёл(а) обучение по образовательной программе
-          </p>
-          <p class="mt-2 text-base font-semibold text-slate-900">
-            «{{ certificate.course.title }}»
-          </p>
-          <p class="mt-3">
-            на платформе
-            <span class="font-semibold text-slate-900">
-              {{ branding.company_name if branding and branding.company_name else 'ИП "Illuminart"' }}
-            </span>
-            {% if branding and branding.partner_name %}
-              совместно с
-              <span class="font-semibold text-slate-900">{{ branding.partner_name }}</span>.
-            {% else %}.{% endif %}
-            В ходе обучения слушатель освоил(а) ключевые темы курса, прошёл(а) тематические модули
-            и успешно сдал(а) итоговый тест, подтвердив необходимый уровень усвоения материала.
-          </p>
-        </div>
-
-        <!-- ===== КОД ПРОВЕРКИ ===== -->
-        <div class="mx-auto mt-2">
-          <div class="rounded-2xl border border-orange-200/70 bg-orange-50/70 px-6 py-3 text-center">
-            <p class="text-[10px] uppercase tracking-[0.2em] text-orange-600">Код проверки</p>
-            <p class="mt-1 font-mono text-base font-semibold text-slate-900 tracking-wider">
-              {{ certificate.certificate_code }}
-            </p>
           </div>
         </div>
 
-        <!-- ===== ПОДПИСЬ И ПЕЧАТЬ ===== -->
-        <div class="mt-auto flex items-end justify-between gap-10 pt-4">
-          <div class="flex flex-col gap-1 text-xs text-slate-600 max-w-sm">
-            <p class="text-[10px] uppercase tracking-[0.18em] text-slate-400">
-              {{ branding.director_title if branding and branding.director_title else 'Руководитель' }}
-            </p>
-            <div class="my-2 h-px w-48 bg-gradient-to-r from-transparent via-slate-400/70 to-transparent"></div>
-            <p class="text-[13px] font-semibold text-slate-900">
-              {{ branding.director_name if branding and branding.director_name else 'Ответственное лицо' }}
-            </p>
-            <p class="text-[10px] text-slate-400">(подпись и расшифровка)</p>
+        <!-- Описание -->
+        <div class="desc-block">
+          <div class="intro">успешно прошёл(а) обучение по образовательной программе</div>
+          <div class="course-title">«{{ certificate.course.title }}»</div>
+          <div class="body">
+            освоил(а) ключевые темы курса, прошёл(а) тематические модули и успешно сдал(а) итоговый тест,
+            подтвердив требуемый уровень усвоения учебного материала.
           </div>
+        </div>
 
-          {% if branding and branding.seal_image_path %}
-            <div class="seal-image-wrap">
-              <img src="{{ url_for('static', filename=branding.seal_image_path) }}"
-                   alt="Печать">
-            </div>
-          {% else %}
-            <div class="seal-stamp">
-              <div class="seal-content">
-                <p class="text-[8px] font-semibold uppercase tracking-[0.2em] text-orange-700">
-                  {{ (branding.company_name if branding and branding.company_name else 'Illuminart')|truncate(14, True, '') }}
-                </p>
-                <div class="mt-1 mx-auto h-px w-8 bg-orange-400"></div>
-                <p class="mt-1 text-[7px] uppercase tracking-[0.18em] text-orange-600">
-                  Образование
-                </p>
+        <!-- Код проверки -->
+        <div class="code-block">
+          <div class="label">Код проверки</div>
+          <div class="code">{{ certificate.certificate_code }}</div>
+        </div>
+
+        <!-- Распорка -->
+        <div></div>
+
+        <!-- Подпись + Печать -->
+        <div class="foot">
+          <div class="sign-col">
+            <div class="label">{{ branding.director_title if branding and branding.director_title else 'Руководитель' }}</div>
+            <div class="sig-line"></div>
+            <div class="who">{{ branding.director_name if branding and branding.director_name else 'Ответственное лицо' }}</div>
+            <div class="caption">(подпись и расшифровка)</div>
+          </div>
+          <div class="seal-col">
+            {% if branding and branding.seal_image_path %}
+              <div class="seal-img">
+                <img src="{{ url_for('static', filename=branding.seal_image_path) }}" alt="Печать">
               </div>
-            </div>
-          {% endif %}
+            {% else %}
+              <div class="seal-stamp">
+                <div class="content">
+                  <div class="top">{{ (branding.company_name if branding and branding.company_name else 'Illuminart')|truncate(14, True, '') }}</div>
+                  <div class="div"></div>
+                  <div class="bot">Образование</div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
         </div>
 
       </div>
