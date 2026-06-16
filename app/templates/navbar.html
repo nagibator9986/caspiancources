@@ -24,6 +24,7 @@
         <a href="{{ url_for('courses.dashboard') }}" class="hover:text-primary-600">Личный кабинет</a>
         {% if current_user.is_admin() %}
           <a href="{{ url_for('admin.dashboard') }}" class="hover:text-primary-600">Админ-панель</a>
+          <a href="{{ url_for('admin.statistics') }}" class="hover:text-primary-600">Статистика</a>
           <a href="{{ url_for('admin.certificate_branding') }}" class="hover:text-primary-600">Сертификаты</a>
 
         {% endif %}

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Статистика · Админка{% endblock %}
+{% block content %}
+
+{% macro stat_card(label, value, hint='', accent='slate') -%}
+  <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+    <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">{{ label }}</p>
+    <p class="mt-1 text-2xl font-semibold text-{{ accent }}-900">{{ value }}</p>
+    {% if hint %}<p class="mt-1 text-[11px] text-slate-500">{{ hint }}</p>{% endif %}
+  </div>
+{%- endmacro %}
+
+{% macro progress_bar(pct, color='primary') -%}
+  <div class="flex items-center gap-2">
+    <div class="h-1.5 w-20 overflow-hidden rounded-full bg-slate-100">
+      <div class="h-full rounded-full bg-{{ color }}-500" style="width: {{ pct if pct <= 100 else 100 }}%"></div>
+    </div>
+    <span class="text-[11px] tabular-nums text-slate-500">{{ pct }}%</span>
+  </div>
+{%- endmacro %}
+
+<!-- Заголовок + выгрузки -->
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-semibold text-slate-900">Статистика обучения</h1>
+    <p class="mt-1 text-sm text-slate-500">
+      Сводка по обучающимся, прогрессу курсов и выданным сертификатам. Данные обновляются в реальном времени.
+    </p>
+  </div>
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Выгрузка CSV:</span>
+    <a href="{{ url_for('admin.export_students_csv') }}"
+       class="rounded-full bg-primary-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-700">
+      ⬇ Студенты
+    </a>
+    <a href="{{ url_for('admin.export_certificates_csv') }}"
+       class="rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">
+      ⬇ Сертификаты
+    </a>
+    <a href="{{ url_for('admin.export_enrollments_csv') }}"
+       class="rounded-full bg-slate-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800">
+      ⬇ Записи
+    </a>
+    <a href="{{ url_for('admin.export_courses_csv') }}"
+       class="rounded-full bg-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-300">
+      ⬇ Курсы
+    </a>
+  </div>
+</div>
+
+<!-- KPI -->
+<section class="mb-8">
+  <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Общая статистика</h2>
+  <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+    {{ stat_card('Обучающихся', overview.total_students, overview.active_students ~ ' записаны на курс') }}
+    {{ stat_card('Записей на курсы', overview.total_enrollments, overview.in_progress ~ ' в процессе') }}
+    {{ stat_card('Завершили курс', overview.completed, 'Доля: ' ~ overview.completion_rate ~ '%', 'emerald') }}
+    {{ stat_card('Сертификатов', overview.total_certificates, overview.students_with_cert ~ ' чел. получили', 'amber') }}
+    {{ stat_card('Средний прогресс', overview.avg_progress ~ '%', 'по всем записям') }}
+    {{ stat_card('Попыток тестов', overview.total_attempts, ('Сдано: ' ~ overview.pass_rate ~ '%') if overview.total_attempts else 'пока нет', 'indigo') }}
+  </div>
+</section>
+
+<!-- По курсам -->
+<section class="mb-8">
+  <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">По курсам</h2>
+  <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-xs">
+        <thead class="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-400">
+          <tr>
+            <th class="px-4 py-3 font-medium">Курс</th>
+            <th class="px-4 py-3 text-center font-medium">Записаны</th>
+            <th class="px-4 py-3 text-center font-medium">В процессе</th>
+            <th class="px-4 py-3 text-center font-medium">Завершили</th>
+            <th class="px-4 py-3 text-center font-medium">Сертификаты</th>
+            <th class="px-4 py-3 font-medium">Средний прогресс</th>
+            <th class="px-4 py-3 text-center font-medium">Завершаемость</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for c in course_rows %}
+            <tr class="hover:bg-slate-50/60">
+              <td class="px-4 py-3">
+                <span class="font-medium text-slate-900">{{ c.title }}</span>
+                {% if not c.is_published %}
+                  <span class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-500">черновик</span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 text-center tabular-nums text-slate-600">{{ c.enrolled }}</td>
+              <td class="px-4 py-3 text-center tabular-nums text-slate-600">{{ c.in_progress }}</td>
+              <td class="px-4 py-3 text-center tabular-nums font-medium text-emerald-700">{{ c.completed }}</td>
+              <td class="px-4 py-3 text-center tabular-nums font-medium text-amber-700">{{ c.certificates }}</td>
+              <td class="px-4 py-3">{{ progress_bar(c.avg_progress) }}</td>
+              <td class="px-4 py-3 text-center tabular-nums text-slate-600">{{ c.completion_rate }}%</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7" class="px-4 py-6 text-center text-slate-400">Курсы ещё не созданы.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- По обучающимся -->
+<section>
+  <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-400">Обучающиеся</h2>
+    <div class="flex items-center gap-2">
+      <!-- Переключатель -->
+      <div class="inline-flex rounded-full bg-slate-100 p-0.5 text-xs">
+        <a href="{{ url_for('admin.statistics') }}"
+           class="rounded-full px-3 py-1 font-medium {{ 'bg-white text-slate-900 shadow-sm' if not filter_passed else 'text-slate-500 hover:text-slate-700' }}">
+          Все ({{ total_count }})
+        </a>
+        <a href="{{ url_for('admin.statistics', filter='passed') }}"
+           class="rounded-full px-3 py-1 font-medium {{ 'bg-white text-slate-900 shadow-sm' if filter_passed else 'text-slate-500 hover:text-slate-700' }}">
+          Завершившие ({{ passed_count }})
+        </a>
+      </div>
+      <a href="{{ url_for('admin.export_students_csv', filter='passed' if filter_passed else None) }}"
+         class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
+        ⬇ Выгрузить {{ 'завершивших' if filter_passed else 'список' }}
+      </a>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-xs">
+        <thead class="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-400">
+          <tr>
+            <th class="px-4 py-3 font-medium">Обучающийся</th>
+            <th class="px-4 py-3 text-center font-medium">Курсов</th>
+            <th class="px-4 py-3 text-center font-medium">Завершено</th>
+            <th class="px-4 py-3 text-center font-medium">Сертификаты</th>
+            <th class="px-4 py-3 font-medium">Средний прогресс</th>
+            <th class="px-4 py-3 text-center font-medium">Тесты</th>
+            <th class="px-4 py-3 font-medium">Последняя активность</th>
+            <th class="px-4 py-3 font-medium">Статус</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for s in student_rows %}
+            <tr class="hover:bg-slate-50/60">
+              <td class="px-4 py-3">
+                <p class="font-medium text-slate-900">{{ s.full_name }}</p>
+                <p class="text-[11px] text-slate-400">{{ s.email }}</p>
+              </td>
+              <td class="px-4 py-3 text-center tabular-nums text-slate-600">{{ s.enrollments }}</td>
+              <td class="px-4 py-3 text-center tabular-nums font-medium text-emerald-700">{{ s.completed }}</td>
+              <td class="px-4 py-3 text-center tabular-nums font-medium text-amber-700">{{ s.certificates or '—' }}</td>
+              <td class="px-4 py-3">{{ progress_bar(s.avg_progress) }}</td>
+              <td class="px-4 py-3 text-center tabular-nums text-slate-600">
+                {% if s.attempts %}{{ s.passed_attempts }}/{{ s.attempts }}{% else %}—{% endif %}
+              </td>
+              <td class="px-4 py-3 text-slate-500">{{ s.last_activity.strftime('%d.%m.%Y %H:%M') if s.last_activity else '—' }}</td>
+              <td class="px-4 py-3">
+                {% if s.has_passed %}
+                  <span class="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">✓ Завершил</span>
+                {% elif s.enrollments %}
+                  <span class="rounded-full bg-sky-50 px-2.5 py-0.5 text-[11px] font-medium text-sky-700">Учится</span>
+                {% else %}
+                  <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500">Не начал</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="8" class="px-4 py-6 text-center text-slate-400">
+              {{ 'Пока никто не завершил курс.' if filter_passed else 'Обучающихся пока нет.' }}
+            </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="mt-2 text-[11px] text-slate-400">
+    «Завершил» — обучающийся прошёл хотя бы один курс полностью или получил сертификат.
+  </p>
+</section>
+
+{% endblock %}

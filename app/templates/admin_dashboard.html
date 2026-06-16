@@ -7,6 +7,31 @@
   Здесь вы управляете курсами, модулями, уроками, блоками контента, тестами и темами оформления.
 </p>
 
+<!-- Статистика обучения (приоритетный блок) -->
+<a href="{{ url_for('admin.statistics') }}"
+   class="group mb-4 flex flex-col gap-4 rounded-3xl bg-gradient-to-tr from-primary-600 to-indigo-500 p-6 text-white shadow-sm hover:-translate-y-0.5 hover:shadow-md transition sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <p class="mb-1 text-xs font-medium uppercase tracking-wide text-white/70">Аналитика</p>
+    <p class="text-xl font-semibold">Статистика обучения</p>
+    <p class="mt-1 text-sm text-white/80">
+      Прогресс обучающихся, завершаемость курсов и выгрузка данных в CSV.
+    </p>
+  </div>
+  <div class="flex items-center gap-6">
+    <div class="text-center">
+      <p class="text-2xl font-semibold">{{ students_count }}</p>
+      <p class="text-[11px] text-white/70">обучающихся</p>
+    </div>
+    <div class="text-center">
+      <p class="text-2xl font-semibold">{{ certificates_count }}</p>
+      <p class="text-[11px] text-white/70">сертификатов</p>
+    </div>
+    <span class="hidden rounded-full bg-white/15 px-4 py-2 text-sm font-medium sm:inline-block">
+      Открыть →
+    </span>
+  </div>
+</a>
+
 <div class="grid gap-4 md:grid-cols-3">
   <a href="{{ url_for('admin.courses_list') }}"
      class="group rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100 hover:-translate-y-0.5 hover:shadow-md transition">

@@ -21,6 +21,7 @@ from flask_wtf.file import FileField, FileAllowed
 
 from ...extensions import db
 from ...models import (
+    User,
     Course,
     CourseModule,
     Lesson,
@@ -30,6 +31,7 @@ from ...models import (
     CourseTheme,
     LessonBlock,
     CertificateBranding,
+    Certificate,
 )
 from ...forms import (
     CourseForm,
@@ -201,11 +203,15 @@ def dashboard():
     courses_count = Course.query.count()
     tests_count = Test.query.count()
     themes_count = CourseTheme.query.count()
+    students_count = User.query.filter(User.role != "admin").count()
+    certificates_count = Certificate.query.count()
     return render_template(
         "admin_dashboard.html",
         courses_count=courses_count,
         tests_count=tests_count,
         themes_count=themes_count,
+        students_count=students_count,
+        certificates_count=certificates_count,
     )
 
 
